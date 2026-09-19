@@ -36,7 +36,8 @@ const newPage = async (viewport) => {
   return page;
 };
 const settle = async (page) => {
-  await page.waitForLoadState('networkidle');
+  // Algunas páginas (el verificador de Cloudflare) mantienen conexiones abiertas: no siempre hay reposo.
+  await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
   await page.waitForTimeout(900);
 };
 const shot = (page, name, fullPage = true) => page.screenshot({ path: `${OUTPUT_DIR}/${name}.png`, fullPage, animations: 'disabled' });
@@ -167,8 +168,7 @@ try {
   await desk.getByRole('button', { name: 'Confirmar pedido' }).click();
   await desk.waitForURL('**/pedido/**');
   await desk.goBack();
-  await desk.waitForURL((url) => url.pathname === '/', { timeout: 10000 }).catch(() => {});
-  await desk.waitForTimeout(500);
+  await desk.waitForURL((url) => url.pathname === '/' && !url.search.includes('aviso='), { timeout: 15000 }).catch(() => {});
   check('Volver atrás tras comprar la última unidad lleva al inicio', new URL(desk.url()).pathname === '/' && !desk.url().includes('aviso='), desk.url());
   check('…con el aviso de que se agotó', await desk.getByRole('status').filter({ hasText: /se acaba de agotar/i }).waitFor({ timeout: 5000 }).then(() => true, () => false));
   await desk.goto(`${base}/producto/reloj-que-no-existe`);
