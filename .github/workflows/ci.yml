@@ -1,0 +1,61 @@
+# Verificación de cada push a main y de cada pull request.
+#   calidad        → tipos, lint, pruebas unitarias y build (no necesita credenciales).
+#   base-de-datos  → ensaya las migraciones pendientes y corre las pruebas SQL dentro de una
+#                    transacción con ROLLBACK contra el proyecto de Supabase (no deja cambios).
+#                    Solo corre si el repo tiene los secretos SUPABASE_ACCESS_TOKEN y SUPABASE_PROJECT_REF.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  calidad:
+    name: Tipos, lint, pruebas y build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - name: Build
+        run: npm run build
+        env:
+          # Opcionales (variables del repo): con ellas el build pre-renderiza el catálogo real.
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ vars.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+
+  base-de-datos:
+    name: Migraciones y pruebas SQL (ensayo)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Ensayo de migraciones y pruebas SQL
+        if: env.SUPABASE_ACCESS_TOKEN != '' && env.SUPABASE_PROJECT_REF != ''
+        run: node scripts/db-migrate.mjs --check
+      - name: Sin credenciales de Supabase
+        if: env.SUPABASE_ACCESS_TOKEN == '' || env.SUPABASE_PROJECT_REF == ''
+        run: echo "::notice::Se omitió el ensayo de base de datos (faltan los secretos SUPABASE_ACCESS_TOKEN y SUPABASE_PROJECT_REF)."

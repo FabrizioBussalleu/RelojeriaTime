@@ -1,0 +1,16 @@
+[
+  {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "Aurora 40 mm",
+    "price": 890,
+    "image": "https://fixtures.invalid/images/watch-01.png",
+    "quantity": 1
+  },
+  {
+    "id": "00000000-0000-4000-8000-000000000003",
+    "name": "Norte Field",
+    "price": 620,
+    "image": "https://fixtures.invalid/images/watch-03.png",
+    "quantity": 2
+  }
+]
