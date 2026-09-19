@@ -1,0 +1,302 @@
+{
+  "baseUrl": "http://localhost:4173",
+  "chromium": "153.0.8010.12",
+  "viewports": {
+    "mobile": {
+      "width": 375,
+      "height": 812
+    },
+    "tablet": {
+      "width": 768,
+      "height": 1024
+    },
+    "desktop": {
+      "width": 1440,
+      "height": 900
+    }
+  },
+  "captures": [
+    {
+      "view": "home",
+      "viewport": "mobile",
+      "file": "home.mobile.png",
+      "pageHeight": 3718,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "home",
+      "viewport": "tablet",
+      "file": "home.tablet.png",
+      "pageHeight": 3150,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "home",
+      "viewport": "desktop",
+      "file": "home.desktop.png",
+      "pageHeight": 3354,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "product-modal",
+      "viewport": "mobile",
+      "file": "product-modal.mobile.png",
+      "pageHeight": 3718,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": [
+        "`DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.\n\nIf you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.\n\nFor more information, see https://radix-ui.com/primitives/docs/components/dialog"
+      ]
+    },
+    {
+      "view": "product-modal",
+      "viewport": "tablet",
+      "file": "product-modal.tablet.png",
+      "pageHeight": 3150,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": [
+        "`DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.\n\nIf you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.\n\nFor more information, see https://radix-ui.com/primitives/docs/components/dialog"
+      ]
+    },
+    {
+      "view": "product-modal",
+      "viewport": "desktop",
+      "file": "product-modal.desktop.png",
+      "pageHeight": 3354,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": [
+        "`DialogContent` requires a `DialogTitle` for the component to be accessible for screen reader users.\n\nIf you want to hide the `DialogTitle`, you can wrap it with our VisuallyHidden component.\n\nFor more information, see https://radix-ui.com/primitives/docs/components/dialog"
+      ]
+    },
+    {
+      "view": "cart-drawer",
+      "viewport": "mobile",
+      "file": "cart-drawer.mobile.png",
+      "pageHeight": 3718,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "cart-drawer",
+      "viewport": "tablet",
+      "file": "cart-drawer.tablet.png",
+      "pageHeight": 3150,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "cart-drawer",
+      "viewport": "desktop",
+      "file": "cart-drawer.desktop.png",
+      "pageHeight": 3354,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "checkout",
+      "viewport": "mobile",
+      "file": "checkout.mobile.png",
+      "pageHeight": 2544,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "checkout",
+      "viewport": "tablet",
+      "file": "checkout.tablet.png",
+      "pageHeight": 1980,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "checkout",
+      "viewport": "desktop",
+      "file": "checkout.desktop.png",
+      "pageHeight": 1457,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "checkout-empty",
+      "viewport": "mobile",
+      "file": "checkout-empty.mobile.png",
+      "pageHeight": 1065,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "checkout-empty",
+      "viewport": "tablet",
+      "file": "checkout-empty.tablet.png",
+      "pageHeight": 1024,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "checkout-empty",
+      "viewport": "desktop",
+      "file": "checkout-empty.desktop.png",
+      "pageHeight": 900,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "order-success",
+      "viewport": "mobile",
+      "file": "order-success.mobile.png",
+      "pageHeight": 1481,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "order-success",
+      "viewport": "tablet",
+      "file": "order-success.tablet.png",
+      "pageHeight": 1087,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "order-success",
+      "viewport": "desktop",
+      "file": "order-success.desktop.png",
+      "pageHeight": 1087,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "tracking",
+      "viewport": "mobile",
+      "file": "tracking.mobile.png",
+      "pageHeight": 1765,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "tracking",
+      "viewport": "tablet",
+      "file": "tracking.tablet.png",
+      "pageHeight": 1155,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "tracking",
+      "viewport": "desktop",
+      "file": "tracking.desktop.png",
+      "pageHeight": 1155,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "tracking-empty",
+      "viewport": "mobile",
+      "file": "tracking-empty.mobile.png",
+      "pageHeight": 1197,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "tracking-empty",
+      "viewport": "tablet",
+      "file": "tracking-empty.tablet.png",
+      "pageHeight": 1024,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "tracking-empty",
+      "viewport": "desktop",
+      "file": "tracking-empty.desktop.png",
+      "pageHeight": 900,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "not-found",
+      "viewport": "mobile",
+      "file": "not-found.mobile.png",
+      "pageHeight": 812,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": [
+        "404 Error: User attempted to access non-existent route: /esta-ruta-no-existe"
+      ]
+    },
+    {
+      "view": "not-found",
+      "viewport": "tablet",
+      "file": "not-found.tablet.png",
+      "pageHeight": 1024,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": [
+        "404 Error: User attempted to access non-existent route: /esta-ruta-no-existe"
+      ]
+    },
+    {
+      "view": "not-found",
+      "viewport": "desktop",
+      "file": "not-found.desktop.png",
+      "pageHeight": 900,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": [
+        "404 Error: User attempted to access non-existent route: /esta-ruta-no-existe"
+      ]
+    },
+    {
+      "view": "admin-login",
+      "viewport": "mobile",
+      "file": "admin-login.mobile.png",
+      "pageHeight": 812,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "admin-login",
+      "viewport": "tablet",
+      "file": "admin-login.tablet.png",
+      "pageHeight": 1024,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    },
+    {
+      "view": "admin-login",
+      "viewport": "desktop",
+      "file": "admin-login.desktop.png",
+      "pageHeight": 900,
+      "hiddenElements": 0,
+      "blocked": [],
+      "consoleErrors": []
+    }
+  ]
+}

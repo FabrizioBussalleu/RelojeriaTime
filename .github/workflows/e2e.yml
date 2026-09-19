@@ -1,0 +1,74 @@
+# Pruebas de punta a punta antes de una entrega (se lanzan a mano desde Actions → E2E → Run workflow).
+# Construyen la app, la sirven en el runner y la recorren con Playwright contra la base y el
+# Cloudinary reales: cada prueba crea sus propios datos (admin temporal, pedidos y productos "E2E")
+# y los borra al terminar. WhatsApp queda en modo sandbox: no sale ningún mensaje.
+name: E2E
+
+on:
+  workflow_dispatch:
+    inputs:
+      suites:
+        description: 'Suites a correr'
+        type: choice
+        default: todas
+        options: [todas, tienda, panel, crm]
+
+concurrency:
+  group: e2e
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: Playwright (${{ inputs.suites }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ vars.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+      CLOUDINARY_FOLDER: imagenes
+      ORDER_LINK_SECRET: ${{ secrets.ORDER_LINK_SECRET }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      WHATSAPP_PROVIDER: sandbox
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - name: Servidor de producción
+        run: |
+          npm start > server.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:3000 > /dev/null && exit 0; sleep 1; done
+          echo "El servidor no respondió" && exit 1
+      - name: Tienda
+        if: inputs.suites == 'todas' || inputs.suites == 'tienda'
+        run: npm run e2e:tienda
+      - name: Panel
+        if: (success() || failure()) && (inputs.suites == 'todas' || inputs.suites == 'panel')
+        run: npm run e2e:panel
+      - name: CRM y WhatsApp
+        if: (success() || failure()) && (inputs.suites == 'todas' || inputs.suites == 'crm')
+        run: npm run e2e:crm
+      - name: Capturas y registro del servidor
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-resultados
+          path: |
+            test-results/
+            server.log
+          retention-days: 7

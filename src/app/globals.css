@@ -1,0 +1,244 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 100%;
+
+    --radius: 0px;
+
+    /* Custom tokens */
+    --font-display: var(--font-oswald), sans-serif;
+    --font-body: var(--font-inter), sans-serif;
+    
+    --sale: 0 84% 60%;
+    --sold-out: 0 0% 60%;
+    
+    /* Alturas fijas de la barra de avisos y del menú (AnnouncementBar y Header): el hero de la home
+       ocupa exactamente el resto de la pantalla. Si cambian esos componentes, actualizar aquí. */
+    --announcement-height: 36px;
+    --header-height: 65px;
+    --site-top: calc(var(--announcement-height) + var(--header-height));
+
+    --transition-fast: 150ms;
+    --transition-normal: 300ms;
+    --transition-slow: 500ms;
+  }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 100%;
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --header-height: 81px;
+    }
+  }
+
+  /* Secciones claras sobre el sitio oscuro (la home alterna blanco y negro). Los componentes usan
+     las mismas variables, así que dentro de una sección clara se invierten solos. */
+  .theme-light {
+    color-scheme: light;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 4%;
+
+    --card: 0 0% 96%;
+    --card-foreground: 0 0% 4%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 4%;
+
+    --primary: 0 0% 4%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 0 0% 4%;
+
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 36%;
+
+    --accent: 0 0% 94%;
+    --accent-foreground: 0 0% 4%;
+
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 0 0% 4%;
+
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display uppercase tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-primary-foreground px-8 py-4 font-display uppercase tracking-wider text-sm 
+           border border-primary transition-all duration-300
+           hover:bg-transparent hover:text-foreground;
+  }
+
+  .btn-outline {
+    @apply bg-transparent text-foreground px-8 py-4 font-display uppercase tracking-wider text-sm 
+           border border-foreground transition-all duration-300
+           hover:bg-foreground hover:text-background;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-foreground px-4 py-2 font-display uppercase tracking-wider text-xs 
+           border-b border-foreground transition-all duration-300
+           hover:border-muted-foreground hover:text-muted-foreground;
+  }
+
+  .product-card {
+    @apply relative overflow-hidden cursor-pointer;
+  }
+
+  .product-card-image {
+    @apply transition-transform duration-500 ease-out;
+  }
+
+  .product-card:hover .product-card-image {
+    @apply scale-105;
+  }
+
+  .badge-sold-out {
+    @apply bg-muted text-muted-foreground px-3 py-1 text-xs font-display uppercase tracking-wider;
+  }
+
+  .badge-sale {
+    @apply bg-background text-[hsl(var(--sale))] px-3 py-1 text-xs font-display uppercase tracking-wider font-bold;
+  }
+
+  /* Capa propia: el desplazamiento corre en el compositor y no ocupa el hilo principal. */
+  .marquee {
+    animation: marquee 25s linear infinite;
+    will-change: transform;
+  }
+
+  .marquee:hover {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      animation: none;
+    }
+  }
+
+  .input-minimal {
+    @apply bg-transparent border-0 border-b border-foreground focus:outline-none focus:border-muted-foreground
+           py-3 px-0 w-full font-body text-sm placeholder:text-muted-foreground transition-colors duration-300;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-body {
+    font-family: var(--font-body);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--foreground));
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}

@@ -1,0 +1,16 @@
+{
+  "name": "time-visual-baseline",
+  "private": true,
+  "type": "module",
+  "description": "Capturas deterministas del storefront para comparar el port a Next.js contra el sitio legado.",
+  "scripts": {
+    "fixtures:images": "node scripts/generate-fixture-images.mjs",
+    "capture": "node capture.mjs",
+    "compare": "node compare.mjs"
+  },
+  "devDependencies": {
+    "pixelmatch": "^7.1.0",
+    "playwright": "1.63.0",
+    "pngjs": "^7.0.0"
+  }
+}

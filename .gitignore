@@ -85,3 +85,9 @@ ehthumbs.db
 .env.*.secret
 
 # End
+
+# Next.js
+.next/
+next-env.d.ts
+.vercel/
+test-results/
