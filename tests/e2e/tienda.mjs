@@ -26,8 +26,9 @@ const [lastUnit] = await sql(`select v.id, v.stock from product_variants v join 
 
 const browser = await chromium.launch();
 const errors = [];
-const newPage = async (viewport) => {
-  const context = await browser.newContext({ viewport, locale: 'es-PE' });
+const newPage = async (viewport, tactil = false) => {
+  // En táctil se emula un celular de verdad: así aplican las reglas CSS de "sin mouse" (hover: none).
+  const context = await browser.newContext({ viewport, locale: 'es-PE', hasTouch: tactil, isMobile: tactil });
   const page = await context.newPage();
   page.on('pageerror', (error) => errors.push(`${page.url()}: ${error.message}`));
   page.on('console', (message) => {
@@ -179,14 +180,22 @@ try {
   await audit(desk, 'aviso');
 
   // Mobile
-  const mob = await newPage({ width: 375, height: 812 });
+  const mob = await newPage({ width: 375, height: 812 }, true);
   await mob.goto(`${base}/`);
   await settle(mob);
+  // Antes de la captura de página completa: esa captura interrumpe la emulación táctil por un momento.
+  const agregarMovil = mob.getByRole('button', { name: /agregar aurora 40/i });
+  const agregarCuenta = await agregarMovil.count();
+  check('Mobile: sin botón Agregar encima de las fotos', agregarCuenta === 0, `botones=${agregarCuenta}`);
   await shot(mob, 'home-mobile');
   const logo = await mob.locator('header a[aria-label*="inicio"]').boundingBox();
   const cart = await mob.locator('header button[aria-label^="Abrir carrito"]').boundingBox();
   check('Mobile: el carrito ya no se superpone al logo', logo.x + logo.width <= cart.x, JSON.stringify({ logo, cart }));
-  check('Mobile: el botón Agregar se ve sin hover (táctil)', await mob.getByRole('button', { name: /agregar aurora 40/i }).isVisible());
+  await mob.locator('#catalogo article').filter({ hasText: 'Aurora 40' }).locator('a').first().click();
+  await mob.waitForURL('**/producto/demo-aurora-40', { timeout: 10000 }).catch(() => {});
+  check('Mobile: tocar la tarjeta abre la ficha del producto', new URL(mob.url()).pathname === '/producto/demo-aurora-40', mob.url());
+  await mob.goto(`${base}/`);
+  await settle(mob);
   await mob.goto(`${base}/producto/demo-aurora-40`);
   await settle(mob);
   await shot(mob, 'producto-mobile');

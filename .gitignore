@@ -91,3 +91,6 @@ ehthumbs.db
 next-env.d.ts
 .vercel/
 test-results/
+
+.vercel
+.env*

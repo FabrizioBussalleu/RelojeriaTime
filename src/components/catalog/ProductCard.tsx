@@ -12,6 +12,8 @@ const MAX_PER_ORDER = 10;
 
 // Imagen y nombre enlazan a la ficha (el de la imagen fuera del orden de tabulación para no duplicarlo).
 // La compra rápida es un botón aparte, no anidado en el enlace, y solo existe si hay una única variante con stock.
+// Solo aparece al pasar el mouse: en celulares y tabletas no se muestra (taparía la foto) y tocar la tarjeta
+// lleva a la ficha del producto.
 const ProductCard = ({ product, priority = false }: { product: CatalogProduct; priority?: boolean }) => {
   const { addItem } = useCart();
   const href = `/producto/${product.slug}`;
@@ -70,7 +72,7 @@ const ProductCard = ({ product, priority = false }: { product: CatalogProduct; p
             className="absolute bottom-3 left-3 right-3 flex items-center justify-center gap-2 bg-foreground py-3 text-background font-display uppercase text-xs tracking-[0.15em]
                        opacity-0 translate-y-2 transition-all duration-300 hover:bg-foreground/90
                        group-hover:opacity-100 group-hover:translate-y-0 focus-visible:opacity-100 focus-visible:translate-y-0
-                       [@media(hover:none)]:opacity-100 [@media(hover:none)]:translate-y-0"
+                       [@media(hover:none)]:hidden"
           >
             <Plus className="w-4 h-4" strokeWidth={1.5} aria-hidden="true" />
             Agregar
