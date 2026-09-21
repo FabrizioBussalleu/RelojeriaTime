@@ -5,7 +5,7 @@ import Header from '@/components/layout/Header';
 import StoreNotice from '@/components/layout/StoreNotice';
 import WhatsAppFloat from '@/components/layout/WhatsAppFloat';
 import { getStoreSettings, type StoreSettings } from '@/lib/catalog';
-import { formatPhone } from '@/lib/store';
+import { formatPhone, whatsappLink } from '@/lib/store';
 
 async function loadSettings(): Promise<StoreSettings | null> {
   try {
@@ -34,7 +34,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         Saltar al contenido
       </a>
       <AnnouncementBar messages={messages} />
-      <Header />
+      <Header whatsappHref={settings?.whatsappNumber ? whatsappLink(settings.whatsappNumber, 'Hola, tengo una consulta sobre los relojes de Time.') : null} />
       <StoreNotice />
       <main id="contenido">{children}</main>
       <Footer whatsappNumber={settings?.whatsappNumber ?? null} contactEmail={settings?.contactEmail ?? null} socialLinks={settings?.socialLinks ?? []} />

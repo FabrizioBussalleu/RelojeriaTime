@@ -56,6 +56,26 @@ try {
   const floating = desk.getByRole('link', { name: 'Escríbenos por WhatsApp' });
   const floatBox = await floating.boundingBox();
   check('Botón flotante de WhatsApp a la derecha', Boolean(floatBox) && floatBox.x + floatBox.width > 1440 - 40 && (await floating.evaluate((el) => getComputedStyle(el).position)) === 'fixed', JSON.stringify(floatBox));
+  // Menú lateral: en computadora tampoco hay enlaces sueltos en la barra de arriba.
+  check('Encabezado sin enlaces sueltos', (await desk.locator('header nav a').count()) === 0);
+  await desk.getByRole('button', { name: 'Abrir menú' }).click();
+  const menu = desk.getByRole('dialog');
+  await menu.waitFor({ timeout: 5000 });
+  check('El menú abre con los accesos rápidos', (await menu.getByRole('link', { name: 'Recibe novedades' }).count()) === 1 && (await menu.getByRole('link').count()) >= 6);
+  // Los enlaces entran con una animación escalonada: se audita cuando ya terminó.
+  await desk.waitForTimeout(1600);
+  await audit(desk, 'menu');
+  await desk.getByRole('button', { name: 'Cerrar menú' }).click();
+  await desk.waitForTimeout(400);
+  check('La X cierra el menú', (await desk.getByRole('dialog').count()) === 0);
+  await desk.getByRole('button', { name: 'Abrir menú' }).click();
+  await desk.getByRole('link', { name: 'Recibe novedades' }).click();
+  await desk.waitForURL('**/registro', { timeout: 8000 }).catch(() => {});
+  await desk.waitForTimeout(600);
+  check('Desde el menú se llega a "Recibe novedades"', new URL(desk.url()).pathname === '/registro' && (await desk.getByRole('dialog').count()) === 0, desk.url());
+  await desk.goto(`${base}/`);
+  await settle(desk);
+
   const names = await desk.locator('#catalogo article h3').allInnerTexts();
   check('Home lista los 8 relojes demo', names.length === 8, names.join(', '));
   check('El agotado aparece al final', /heritage bronce/i.test(names.at(-1) ?? ''), names.at(-1));

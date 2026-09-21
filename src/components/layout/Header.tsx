@@ -4,31 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
-
-const NAV_LINKS = [
-  { href: "/#catalogo", label: "Relojes" },
-  { href: "/seguimiento", label: "Seguimiento" },
-];
+import MenuDrawer from "./MenuDrawer";
 
 // Tres columnas fijas: el logo queda centrado y el carrito nunca se superpone en mobile.
-const Header = () => {
+// Los accesos viven en el menú lateral (las tres barras), igual en celular que en computadora.
+const Header = ({ whatsappHref = null }: { whatsappHref?: string | null }) => {
   const { cartCount, toggleCart } = useCart();
 
   return (
     <header className="sticky top-0 z-40 bg-background border-b border-border">
       <div className="container mx-auto px-4 md:px-8">
         <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 md:h-20">
-          <nav aria-label="Principal" className="flex items-center gap-6">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="hidden md:inline text-xs font-display uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex items-center">
+            <MenuDrawer whatsappHref={whatsappHref} />
+          </div>
 
           <Link href="/" aria-label="Time Relojería, ir al inicio" className="justify-self-center">
             <Image
