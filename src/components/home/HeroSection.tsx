@@ -45,12 +45,13 @@ const HeroSection = () => {
 
       <div className="relative container mx-auto flex h-full items-end px-4 pb-24 md:items-center md:px-8 md:pb-0">
         <div className="max-w-md md:max-w-[34rem]">
-          <div className={`${fadeUp} flex items-center gap-4 [animation-delay:100ms]`}>
+          {/* En el celular no se muestra: cae sobre la foto y queda ilegible; el logo ya está en el menú. */}
+          <div className={`${fadeUp} hidden items-center gap-4 [animation-delay:100ms] md:flex`}>
             <Image src="/brand/isotipo.svg" alt="" width={120} height={107} priority unoptimized className="h-10 w-auto md:h-14" />
             <p className="text-xs font-display tracking-[0.4em] text-muted-foreground md:text-sm">RELOJERÍA</p>
           </div>
 
-          <h1 id="hero-titulo" className={`${rise} mt-5 text-5xl font-display font-bold leading-[1.02] tracking-tight md:mt-6 md:text-7xl lg:text-8xl`}>
+          <h1 id="hero-titulo" className={`${rise} text-5xl font-display font-bold leading-[1.02] tracking-tight md:mt-6 md:text-7xl lg:text-8xl`}>
             El tiempo,
             <br />
             a tu estilo

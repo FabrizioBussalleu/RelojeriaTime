@@ -1,11 +1,13 @@
 // Solo mensajes verificables: nada de promociones que la tienda no aplica.
 const AnnouncementBar = ({ messages }: { messages: string[] }) => {
-  const repeated = [...messages, ...messages, ...messages, ...messages];
+  // Dos copias exactas: la animación desplaza la mitad del ancho del contenido (w-max), así el ciclo
+  // encaja sin saltos y avanza igual en el celular que en la computadora.
+  const repeated = [...messages, ...messages];
 
   return (
     <section className="bg-foreground text-background py-2.5 overflow-hidden" aria-label="Avisos de la tienda">
       <p className="sr-only">{messages.join('. ')}</p>
-      <div className="marquee flex whitespace-nowrap" aria-hidden="true">
+      <div className="marquee flex w-max whitespace-nowrap" aria-hidden="true">
         {repeated.map((text, index) => (
           <span key={index} className="mx-8 text-xs font-display uppercase tracking-[0.2em]">
             {text} <span className="mx-4">✦</span>
