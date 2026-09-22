@@ -6,7 +6,14 @@ import { useRouter } from 'next/navigation';
 import { ArrowDown, ArrowUp, ExternalLink, Loader2, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { createBrand, createCategory, discardUploads, saveProduct } from '@/app/admin/(panel)/productos/actions';
-import { PRODUCT_STATUS_HINTS, PRODUCT_STATUS_LABELS, type ProductStatus } from '@/lib/admin/labels';
+import {
+  PRODUCT_VISIBILITY_HINTS,
+  PRODUCT_VISIBILITY_LABELS,
+  productVisibility,
+  visibilityToStatus,
+  type ProductStatus,
+  type ProductVisibility,
+} from '@/lib/admin/labels';
 import { issuesToFieldErrors, ProductInputSchema, slugify, SPEC_SUGGESTIONS, type ProductInput } from '@/lib/admin/product-input';
 import { DEFAULT_VARIANT_LABEL, GENDER_LABELS, MOVEMENT_LABELS, type WatchGender, type WatchMovement } from '@/lib/store';
 import { cn } from '@/lib/utils';
@@ -28,6 +35,7 @@ export type ProductFormInitial = {
   price: number | null;
   compare_at_price: number | null;
   status: ProductStatus;
+  wholesale_only: boolean;
   specs: { label: string; value: string }[];
   variants: { id: string; label: string; sku: string | null; stock: number; price_override: number | null }[];
   images: Omit<ManagedImage, 'isNew'>[];
@@ -166,7 +174,8 @@ export function ProductForm({
   const [movement, setMovement] = useState(initial.movement);
   const [price, setPrice] = useState(toText(initial.price));
   const [compareAt, setCompareAt] = useState(toText(initial.compare_at_price));
-  const [status, setStatus] = useState<ProductStatus>(initial.status);
+  const [visibility, setVisibility] = useState<ProductVisibility>(productVisibility(initial.status, initial.wholesale_only));
+  const { status, wholesaleOnly } = visibilityToStatus(visibility);
   const [specs, setSpecs] = useState(initial.specs.length ? initial.specs : [{ label: '', value: '' }]);
   const [hasVariants, setHasVariants] = useState(initial.variants.length > 1 || initial.variants.some((variant) => variant.label !== DEFAULT_VARIANT_LABEL));
   const [variants, setVariants] = useState<VariantRow[]>(() =>
@@ -228,6 +237,7 @@ export function ProductForm({
       price: parseMoney(price) ?? NaN,
       compare_at_price: parseMoney(compareAt),
       status,
+      wholesaleOnly,
       specs: specs.map((spec) => ({ label: spec.label.trim(), value: spec.value.trim() })).filter((spec) => spec.label && spec.value),
       variants: rows.map((variant) => ({
         id: variant.id,
@@ -261,7 +271,7 @@ export function ProductForm({
       }
       setDirty(false);
       toast.success(result.created ? 'Producto creado' : `${input.name}: cambios guardados`, {
-        description: status === 'active' ? 'Ya se ve en la tienda.' : PRODUCT_STATUS_HINTS[status],
+        description: PRODUCT_VISIBILITY_HINTS[visibility],
       });
       if (variant === 'page') router.push('/admin/productos');
       router.refresh();
@@ -492,12 +502,12 @@ export function ProductForm({
       <aside aria-label={variant === 'inline' ? `Publicación de ${initial.name}` : 'Publicación'} className="space-y-4 xl:sticky xl:top-6 xl:self-start">
         <Card title="Estado">
           <div className="space-y-2">
-            {(Object.keys(PRODUCT_STATUS_LABELS) as ProductStatus[]).map((option) => (
-              <label key={option} className={cn('flex cursor-pointer gap-3 border p-3 text-sm', status === option ? 'border-foreground' : 'border-border')}>
-                <input type="radio" name="status" value={option} checked={status === option} onChange={() => touch(setStatus)(option)} className="mt-1 accent-white" />
+            {(Object.keys(PRODUCT_VISIBILITY_LABELS) as ProductVisibility[]).map((option) => (
+              <label key={option} className={cn('flex cursor-pointer gap-3 border p-3 text-sm', visibility === option ? 'border-foreground' : 'border-border')}>
+                <input type="radio" name="status" value={option} checked={visibility === option} onChange={() => touch(setVisibility)(option)} className="mt-1 accent-white" />
                 <span>
-                  <span className="block font-medium">{PRODUCT_STATUS_LABELS[option]}</span>
-                  <span className="text-xs text-muted-foreground">{PRODUCT_STATUS_HINTS[option]}</span>
+                  <span className="block font-medium">{PRODUCT_VISIBILITY_LABELS[option]}</span>
+                  <span className="text-xs text-muted-foreground">{PRODUCT_VISIBILITY_HINTS[option]}</span>
                 </span>
               </label>
             ))}

@@ -94,9 +94,9 @@ function customerEmail(order: OrderEmailData, context: OrderEmailContext): Rende
   const total = formatPEN(order.total);
   const payment = paymentLines(order, context);
   const proof = context.whatsappNumber
-    ? whatsappLink(context.whatsappNumber, `Hola, adjunto el comprobante de pago de mi pedido ${order.code} por ${total}.`)
+    ? whatsappLink(context.whatsappNumber, `Hola, quiero finalizar mi pedido ${order.code} por ${total}.`)
     : null;
-  const reminder = `Envíanos el comprobante por WhatsApp indicando tu código de pedido. Si no recibimos el pago en ${context.reserveHours} horas, el pedido se cancela automáticamente.`;
+  const reminder = `Escríbenos por WhatsApp con tu código de pedido para cerrar la compra: puedes adelantar el pago y enviarnos el comprobante, o coordinar pago contra entrega. Guardamos tu reloj ${context.reserveHours} horas mientras conversamos.`;
 
   const html = layout(
     `Tu código de pedido es ${order.code}. Paga ${total} con ${PAYMENT_METHOD_LABELS[order.paymentMethod]}.`,
@@ -107,7 +107,7 @@ function customerEmail(order: OrderEmailData, context: OrderEmailContext): Rende
 ${subheading(`Paga ${total} con ${escape(PAYMENT_METHOD_LABELS[order.paymentMethod])}`)}
 ${payment.map((line) => `<p style="margin:0 0 6px;font-weight:bold;">${escape(line)}</p>`).join('')}
 <p style="margin:10px 0 0;${MUTED}font-size:14px;">${escape(reminder)}</p>
-<p style="margin:16px 0 0;">${proof ? button(proof, 'Enviar comprobante por WhatsApp') : ''}${button(context.orderUrl, 'Ver mi pedido', !proof)}</p>
+<p style="margin:16px 0 0;">${proof ? button(proof, 'Finalizar compra por WhatsApp') : ''}${button(context.orderUrl, 'Ver mi pedido', !proof)}</p>
 ${subheading('Tu pedido')}
 ${itemsTable(order)}
 ${subheading('Entrega')}
@@ -122,7 +122,7 @@ ${subheading('Entrega')}
     `Paga ${total} con ${PAYMENT_METHOD_LABELS[order.paymentMethod]}:`,
     ...payment,
     reminder,
-    proof ? `Enviar comprobante por WhatsApp: ${proof}` : null,
+    proof ? `Finalizar tu compra por WhatsApp: ${proof}` : null,
     `Ver tu pedido: ${context.orderUrl}`,
     '',
     'TU PEDIDO',

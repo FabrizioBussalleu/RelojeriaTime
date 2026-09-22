@@ -7,7 +7,7 @@ import { arrayMove, rectSortingStrategy, SortableContext, useSortable } from '@d
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, ImageOff, Loader2, RotateCcw, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import { saveProductOrder, setSoldOutLast } from '@/app/admin/(panel)/organizador/actions';
+import { saveProductOrder, setSoldOutLast, type OrderScope } from '@/app/admin/(panel)/organizador/actions';
 import { PRODUCT_STATUS_LABELS, type ProductStatus } from '@/lib/admin/labels';
 import { cloudinaryImageSrc, type ImageCrop } from '@/lib/cloudinary/url';
 import { formatPEN } from '@/lib/store';
@@ -23,6 +23,7 @@ export type OrganizerProduct = {
   price: number;
   stock: number;
   status: ProductStatus;
+  wholesaleOnly: boolean;
   createdAt: string;
   image: { public_id: string; crop: ImageCrop | null; brightness: number; contrast: number } | null;
 };
@@ -129,7 +130,16 @@ function SortableGrid({ items, onChange, label }: { items: OrganizerProduct[]; o
   );
 }
 
-export function Organizer({ products, soldOutLast: initialSoldOutLast }: { products: OrganizerProduct[]; soldOutLast: boolean }) {
+export function Organizer({
+  products,
+  soldOutLast: initialSoldOutLast,
+  scope = 'tienda',
+}: {
+  products: OrganizerProduct[];
+  soldOutLast: boolean;
+  scope?: OrderScope;
+}) {
+  const porMayor = scope === 'por_mayor';
   const [order, setOrder] = useState(products);
   const [saved, setSaved] = useState(products);
   const [includeHidden, setIncludeHidden] = useState(false);
@@ -145,9 +155,11 @@ export function Organizer({ products, soldOutLast: initialSoldOutLast }: { produ
     return () => window.removeEventListener('beforeunload', warn);
   }, [dirty]);
 
-  const visible = order.filter((product) => includeHidden || product.status === 'active');
-  const available = soldOutLast ? visible.filter((product) => product.stock > 0) : visible;
-  const soldOut = soldOutLast ? visible.filter((product) => product.stock <= 0) : [];
+  // En la tienda no entran los "solo al por mayor"; en por mayor entran todos los publicados.
+  const visible = order.filter((product) => (includeHidden || product.status === 'active') && (porMayor || !product.wholesaleOnly));
+  const conAgotadosAlFinal = soldOutLast && !porMayor;
+  const available = conAgotadosAlFinal ? visible.filter((product) => product.stock > 0) : visible;
+  const soldOut = conAgotadosAlFinal ? visible.filter((product) => product.stock <= 0) : [];
 
   // Reemplaza en el orden completo solo los productos del grupo que cambió, en su nuevo orden.
   const replaceGroup = (group: OrganizerProduct[], next: OrganizerProduct[]) => {
@@ -171,15 +183,15 @@ export function Organizer({ products, soldOutLast: initialSoldOutLast }: { produ
   const save = () =>
     startSaving(async () => {
       // Con "agotados al final", lo guardado es exactamente lo que se ve: disponibles y luego agotados.
-      const display = soldOutLast ? [...order.filter((product) => product.stock > 0), ...order.filter((product) => product.stock <= 0)] : order;
-      const result = await saveProductOrder(display.map((product) => product.id));
+      const display = conAgotadosAlFinal ? [...order.filter((product) => product.stock > 0), ...order.filter((product) => product.stock <= 0)] : order;
+      const result = await saveProductOrder(display.map((product) => product.id), scope);
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
       setOrder(display);
       setSaved(display);
-      toast.success('Orden guardado: la tienda ya lo muestra así.');
+      toast.success(porMayor ? 'Orden guardado: así se verá en “Compras al por mayor”.' : 'Orden guardado: la tienda ya lo muestra así.');
     });
 
   // Cambio optimista: la casilla responde al instante y vuelve atrás si el servidor falla.
@@ -207,18 +219,21 @@ export function Organizer({ products, soldOutLast: initialSoldOutLast }: { produ
                 {sort.label}
               </button>
             ))}
-            {!soldOutLast ? (
+            {!soldOutLast && !porMayor ? (
               <button type="button" className="border border-border px-3 py-1.5 text-sm hover:border-foreground" onClick={soldOutToEnd}>
                 Agotados al final
               </button>
             ) : null}
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={soldOutLast} disabled={togglingSetting} onChange={(event) => toggleSoldOutLast(event.target.checked)} className="h-4 w-4 accent-white" />
-              Mover los agotados al final automáticamente en la tienda
-              {togglingSetting ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> : null}
-            </label>
+            {/* Ajuste de la tienda: no se repite en la pestaña de por mayor, donde no hay stock a la vista. */}
+            {porMayor ? null : (
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={soldOutLast} disabled={togglingSetting} onChange={(event) => toggleSoldOutLast(event.target.checked)} className="h-4 w-4 accent-white" />
+                Mover los agotados al final automáticamente en la tienda
+                {togglingSetting ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> : null}
+              </label>
+            )}
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={includeHidden} onChange={(event) => setIncludeHidden(event.target.checked)} className="h-4 w-4 accent-white" />
               Mostrar también borradores y archivados

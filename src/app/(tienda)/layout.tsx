@@ -22,6 +22,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   const messages = [
     `Paga con ${payments.join(', ').replace(/, ([^,]*)$/, ' o $1')}`,
     settings?.whatsappNumber ? `Atención por WhatsApp: ${formatPhone(settings.whatsappNumber)}` : null,
+    'Pago contra entrega disponible',
     'Sigue tu pedido en línea',
   ].filter((message): message is string => Boolean(message));
 

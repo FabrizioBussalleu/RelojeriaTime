@@ -19,6 +19,39 @@ export const PRODUCT_STATUS_TONES: Record<ProductStatus, 'neutral' | 'success' |
   archived: 'warning',
 };
 
+// Visibilidad en el panel: el estado de la base más la marca de "solo al por mayor", que se elige
+// como una opción más junto a borrador, publicado y archivado.
+export type ProductVisibility = 'draft' | 'active' | 'wholesale' | 'archived';
+
+export const PRODUCT_VISIBILITY_LABELS: Record<ProductVisibility, string> = {
+  draft: 'Borrador',
+  active: 'Publicado',
+  wholesale: 'Solo al por mayor',
+  archived: 'Archivado',
+};
+
+export const PRODUCT_VISIBILITY_HINTS: Record<ProductVisibility, string> = {
+  draft: PRODUCT_STATUS_HINTS.draft,
+  active: 'Visible en la tienda, en la página de por mayor y para el asistente de WhatsApp.',
+  wholesale: 'Fuera del catálogo de la tienda: solo aparece en “Compras al por mayor”, sin precio y para cotizar.',
+  archived: PRODUCT_STATUS_HINTS.archived,
+};
+
+export const PRODUCT_VISIBILITY_TONES: Record<ProductVisibility, 'neutral' | 'success' | 'warning'> = {
+  draft: 'neutral',
+  active: 'success',
+  wholesale: 'neutral',
+  archived: 'warning',
+};
+
+export function productVisibility(status: ProductStatus, wholesaleOnly: boolean): ProductVisibility {
+  return status === 'active' && wholesaleOnly ? 'wholesale' : status;
+}
+
+export function visibilityToStatus(visibility: ProductVisibility): { status: ProductStatus; wholesaleOnly: boolean } {
+  return visibility === 'wholesale' ? { status: 'active', wholesaleOnly: true } : { status: visibility, wholesaleOnly: false };
+}
+
 // Umbral para "stock bajo" en el panel.
 export const LOW_STOCK = 2;
 

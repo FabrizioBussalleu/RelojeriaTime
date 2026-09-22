@@ -12,6 +12,8 @@ export type AdminProduct = {
   slug: string;
   name: string;
   status: ProductStatus;
+  wholesaleOnly: boolean;
+  wholesalePosition: number;
   price: number;
   compareAtPrice: number | null;
   position: number;
@@ -33,6 +35,8 @@ type Row = {
   slug: string;
   name: string;
   status: ProductStatus;
+  wholesale_only: boolean;
+  wholesale_position: number;
   price: number;
   compare_at_price: number | null;
   position: number;
@@ -50,7 +54,7 @@ export async function getAdminProducts(supabase: SessionClient): Promise<AdminPr
   const { data, error } = await supabase
     .from('products')
     .select(
-      'id, slug, name, status, price, compare_at_price, position, created_at, updated_at, brand:brands(id, name), category:categories(id, name), images:product_images(public_id, is_primary, position, crop, brightness, contrast), variants:product_variants(stock, sku)'
+      'id, slug, name, status, wholesale_only, wholesale_position, price, compare_at_price, position, created_at, updated_at, brand:brands(id, name), category:categories(id, name), images:product_images(public_id, is_primary, position, crop, brightness, contrast), variants:product_variants(stock, sku)'
     )
     .order('position')
     .order('created_at', { ascending: false })
@@ -63,6 +67,8 @@ export async function getAdminProducts(supabase: SessionClient): Promise<AdminPr
       slug: row.slug,
       name: row.name,
       status: row.status,
+      wholesaleOnly: row.wholesale_only,
+      wholesalePosition: row.wholesale_position,
       price: Number(row.price),
       compareAtPrice: row.compare_at_price === null ? null : Number(row.compare_at_price),
       position: row.position,
@@ -119,6 +125,7 @@ export async function getProductEditData(supabase: SessionClient, id: string): P
       price: Number(product.price),
       compare_at_price: product.compare_at_price === null ? null : Number(product.compare_at_price),
       status: product.status as ProductStatus,
+      wholesale_only: product.wholesale_only,
       specs: Array.isArray(product.specs) ? (product.specs as { label: string; value: string }[]) : [],
       variants: [...product.variants]
         .sort((a, b) => a.position - b.position)

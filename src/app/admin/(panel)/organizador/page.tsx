@@ -1,10 +1,25 @@
 import Link from 'next/link';
-import { Organizer } from '@/components/admin/organizer/Organizer';
+import { OrganizerTabs } from '@/components/admin/organizer/OrganizerTabs';
 import { buttonClass, EmptyState, PageHeader } from '@/components/admin/ui';
 import { getAdminProducts } from '@/lib/admin/products-query';
 import { requireAdmin } from '@/lib/auth';
 
 export const metadata = { title: 'Organizador' };
+
+type AdminRow = Awaited<ReturnType<typeof getAdminProducts>>[number];
+
+const toOrganizerProduct = (product: AdminRow) => ({
+  id: product.id,
+  name: product.name,
+  brand: product.brand,
+  category: product.category,
+  price: product.price,
+  stock: product.stock,
+  status: product.status,
+  wholesaleOnly: product.wholesaleOnly,
+  createdAt: product.createdAt,
+  image: product.primaryImage,
+});
 
 export default async function OrganizerPage() {
   const { supabase } = await requireAdmin();
@@ -14,22 +29,13 @@ export default async function OrganizerPage() {
     <>
       <PageHeader
         title="Organizador"
-        description="Agarra un reloj y suéltalo donde quieras que aparezca en la tienda (orden “Destacados”). En el celular: mantén presionado y arrastra."
+        description="Agarra un reloj y suéltalo donde quieras que aparezca. Una pestaña para la tienda y otra para “Compras al por mayor”, cada una con su propio orden. En el celular: mantén presionado y arrastra."
       />
       {products.length ? (
-        <Organizer
+        <OrganizerTabs
           soldOutLast={settings?.sold_out_last ?? true}
-          products={products.map((product) => ({
-            id: product.id,
-            name: product.name,
-            brand: product.brand,
-            category: product.category,
-            price: product.price,
-            stock: product.stock,
-            status: product.status,
-            createdAt: product.createdAt,
-            image: product.primaryImage,
-          }))}
+          tienda={products.map(toOrganizerProduct)}
+          porMayor={[...products].sort((a, b) => a.wholesalePosition - b.wholesalePosition).map(toOrganizerProduct)}
         />
       ) : (
         <EmptyState title="Aún no hay productos">

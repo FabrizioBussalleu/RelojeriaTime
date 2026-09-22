@@ -20,7 +20,7 @@ export default async function OrderPage({ params, searchParams }: PageProps) {
   const settings = await getStoreSettings();
 
   const awaitingPayment = order.status === 'pending_payment';
-  const proofMessage = `Hola, adjunto el comprobante de pago de mi pedido ${order.code} por ${formatPEN(order.total)}.`;
+  const proofMessage = `Hola, quiero finalizar mi pedido ${order.code} por ${formatPEN(order.total)}.`;
   const walletNumber = order.paymentMethod === 'yape' ? settings.yapeNumber : order.paymentMethod === 'plin' ? settings.plinNumber : null;
 
   return (
@@ -66,8 +66,9 @@ export default async function OrderPage({ params, searchParams }: PageProps) {
           ) : null}
 
           <p className="text-sm text-muted-foreground">
-            Envíanos el comprobante por WhatsApp indicando tu código de pedido. Si no recibimos el pago en {settings.pendingOrderTtlHours} horas, el
-            pedido se cancela automáticamente.
+            Escríbenos por WhatsApp con tu código de pedido para cerrar la compra: puedes adelantar el pago con los datos de arriba y enviarnos el
+            comprobante, o coordinar <strong className="text-foreground">pago contra entrega</strong>. Guardamos tu reloj{' '}
+            {settings.pendingOrderTtlHours} horas mientras conversamos.
           </p>
 
           {settings.whatsappNumber ? (
@@ -78,7 +79,7 @@ export default async function OrderPage({ params, searchParams }: PageProps) {
               className="btn-primary inline-flex w-full items-center justify-center gap-2"
             >
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              Enviar comprobante por WhatsApp
+              Finalizar mi compra por WhatsApp
             </a>
           ) : null}
         </section>

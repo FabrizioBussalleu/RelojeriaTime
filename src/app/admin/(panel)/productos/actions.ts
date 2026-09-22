@@ -38,6 +38,8 @@ export async function saveProduct(input: ProductInput): Promise<SaveProductResul
     p_product: {
       ...product,
       slug: previous?.slug ?? (slugify(product.slug) || 'reloj'),
+      // La base usa snake_case; el resto de campos ya coincide.
+      wholesale_only: product.wholesaleOnly,
       variants: product.variants.map((variant) => ({ ...variant, label: variant.label || undefined })),
     },
   });

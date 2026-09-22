@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import ProductGallery from '@/components/product/ProductGallery';
 import ProductPurchase from '@/components/product/ProductPurchase';
+import { WholesaleNotice } from '@/components/wholesale/WholesaleNotice';
 import { getProductBySlug, getProductSlugs, getStoreSettings } from '@/lib/catalog';
 import { cloudinaryLoaderUrl, cloudinaryShareUrl } from '@/lib/cloudinary/url';
 import { formatPEN, GENDER_LABELS, MOVEMENT_LABELS } from '@/lib/store';
@@ -34,7 +35,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = [product.brand, product.name].filter(Boolean).join(' ');
   const price = Math.min(...product.variants.map((variant) => variant.price));
   // El precio va en el título al compartir; la descripción no lo repite.
+  const soloPorMayor = product.wholesaleOnly;
   const facts = [
+    soloPorMayor ? 'Venta al por mayor' : null,
     product.stock > 0 ? null : 'Agotado',
     product.gender === 'unisex' ? 'Unisex' : product.gender ? `Para ${GENDER_LABELS[product.gender].toLowerCase()}` : null,
     product.movement ? MOVEMENT_LABELS[product.movement] : null,
@@ -47,7 +50,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description,
     alternates: { canonical: path },
     openGraph: {
-      title: product.stock > 0 ? `${title} · ${formatPEN(price)}` : title,
+      title: soloPorMayor ? `${title} · al por mayor` : product.stock > 0 ? `${title} · ${formatPEN(price)}` : title,
       description,
       url: path,
       siteName: 'Time Relojería',
@@ -55,7 +58,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'website',
       images: image ? [{ url: cloudinaryShareUrl(image), width: 1200, height: 630, alt: title, type: 'image/jpeg' }] : undefined,
     },
-    other: { 'product:price:amount': price.toFixed(2), 'product:price:currency': 'PEN' },
+    other: soloPorMayor ? {} : { 'product:price:amount': price.toFixed(2), 'product:price:currency': 'PEN' },
   };
 }
 
@@ -82,7 +85,7 @@ export default async function ProductPage({ params }: PageProps) {
     description: product.description || undefined,
     image: product.images.map((image) => cloudinaryLoaderUrl(image.src, 1200)),
     brand: product.brand ? { '@type': 'Brand', name: product.brand } : undefined,
-    offers: {
+    offers: product.wholesaleOnly ? undefined : {
       '@type': 'Offer',
       url: `${siteUrl}/producto/${product.slug}`,
       priceCurrency: 'PEN',
@@ -119,6 +122,9 @@ export default async function ProductPage({ params }: PageProps) {
             {soldOut ? <p className="badge-sold-out inline-block">Agotado</p> : null}
           </div>
 
+          {product.wholesaleOnly ? (
+            <WholesaleNotice whatsappNumber={settings?.whatsappNumber ?? null} productName={[product.brand, product.name].filter(Boolean).join(' ')} />
+          ) : (
           <ProductPurchase
             product={{
               id: product.id,
@@ -131,6 +137,7 @@ export default async function ProductPage({ params }: PageProps) {
             }}
             whatsappNumber={settings?.whatsappNumber ?? null}
           />
+          )}
 
           {product.description ? (
             <section aria-labelledby="descripcion">

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ChevronDown, ImageOff, Loader2, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { bulkMarkSoldOut, bulkSetStatus, loadProductForEdit } from '@/app/admin/(panel)/productos/actions';
-import { LOW_STOCK, PRODUCT_STATUS_LABELS, PRODUCT_STATUS_TONES, type ProductStatus } from '@/lib/admin/labels';
+import { LOW_STOCK, PRODUCT_VISIBILITY_LABELS, PRODUCT_VISIBILITY_TONES, productVisibility, type ProductStatus } from '@/lib/admin/labels';
 import { cloudinaryImageSrc, type ImageCrop } from '@/lib/cloudinary/url';
 import { formatPEN } from '@/lib/store';
 import { cn } from '@/lib/utils';
@@ -26,6 +26,7 @@ export type ProductRow = {
   compareAtPrice: number | null;
   stock: number;
   status: ProductStatus;
+  wholesaleOnly: boolean;
   imageCount: number;
   primaryImage: { public_id: string; crop: ImageCrop | null; brightness: number; contrast: number } | null;
 };
@@ -262,7 +263,7 @@ export function ProductsList({ rows, openId }: { rows: ProductRow[]; openId?: st
                     <span className="mt-0.5 flex flex-wrap items-center gap-2 text-xs md:hidden">
                       <span className="tabular-nums">{formatPEN(row.price)}</span>
                       <span className={cn('tabular-nums', row.stock > 0 && row.stock <= LOW_STOCK && 'text-amber-300')}>{row.stock === 0 ? 'Agotado' : `${row.stock} en stock`}</span>
-                      <Badge tone={PRODUCT_STATUS_TONES[row.status]}>{PRODUCT_STATUS_LABELS[row.status]}</Badge>
+                      <Badge tone={PRODUCT_VISIBILITY_TONES[productVisibility(row.status, row.wholesaleOnly)]}>{PRODUCT_VISIBILITY_LABELS[productVisibility(row.status, row.wholesaleOnly)]}</Badge>
                     </span>
                   </button>
                   <span className="hidden text-right text-sm tabular-nums md:block">
@@ -273,7 +274,7 @@ export function ProductsList({ rows, openId }: { rows: ProductRow[]; openId?: st
                     {row.stock === 0 ? <Badge>Agotado</Badge> : row.stock <= LOW_STOCK ? <span className="text-amber-300">{row.stock}</span> : row.stock}
                   </span>
                   <span className="hidden md:block">
-                    <Badge tone={PRODUCT_STATUS_TONES[row.status]}>{PRODUCT_STATUS_LABELS[row.status]}</Badge>
+                    <Badge tone={PRODUCT_VISIBILITY_TONES[productVisibility(row.status, row.wholesaleOnly)]}>{PRODUCT_VISIBILITY_LABELS[productVisibility(row.status, row.wholesaleOnly)]}</Badge>
                   </span>
                   <span className="flex items-center justify-end gap-1">
                     <button

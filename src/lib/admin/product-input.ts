@@ -42,6 +42,8 @@ export const ProductInputSchema = z
     price: money,
     compare_at_price: money.nullable(),
     status: z.enum(['draft', 'active', 'archived']),
+    // Solo al por mayor: publicado, pero fuera del catálogo de la tienda.
+    wholesaleOnly: z.boolean().default(false),
     specs: z.array(z.object({ label: z.string().trim().min(1).max(60), value: z.string().trim().min(1).max(200) })).max(30),
     variants: z.array(ProductVariantSchema).min(1, 'Agrega al menos una variante.').max(40),
     images: z.array(ProductImageSchema).max(MAX_PRODUCT_IMAGES, `Máximo ${MAX_PRODUCT_IMAGES} fotos.`),

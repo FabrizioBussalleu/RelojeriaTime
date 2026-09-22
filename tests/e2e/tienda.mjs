@@ -61,7 +61,12 @@ try {
   await desk.getByRole('button', { name: 'Abrir menú' }).click();
   const menu = desk.getByRole('dialog');
   await menu.waitFor({ timeout: 5000 });
-  check('El menú abre con los accesos rápidos', (await menu.getByRole('link', { name: 'Recibe novedades' }).count()) === 1 && (await menu.getByRole('link').count()) >= 6);
+  check(
+    'El menú abre con los accesos rápidos',
+    (await menu.getByRole('link', { name: 'Recibe novedades' }).count()) === 1 &&
+      (await menu.getByRole('link', { name: 'Compras al por mayor' }).count()) === 1 &&
+      (await menu.getByRole('link').count()) >= 7
+  );
   // Los enlaces entran con una animación escalonada: se audita cuando ya terminó.
   await desk.waitForTimeout(1600);
   await audit(desk, 'menu');

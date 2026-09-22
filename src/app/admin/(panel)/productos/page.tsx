@@ -27,19 +27,22 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const { supabase } = await requireAdmin();
   const params = await searchParams;
   const q = single(params.q)?.trim() ?? '';
-  const status = single(params.estado) as ProductStatus | undefined;
+  const status = single(params.estado) as ProductStatus | 'por-mayor' | undefined;
   const brandId = single(params.marca);
   const stockFilter = single(params.stock);
   const sort = (single(params.orden) ?? 'organizador') in SORTS ? ((single(params.orden) ?? 'organizador') as keyof typeof SORTS) : 'organizador';
   const page = Math.max(1, Number(single(params.pagina)) || 1);
 
   const [products, { data: brands }] = await Promise.all([getAdminProducts(supabase), supabase.from('brands').select('id, name').order('name')]);
-  const counts = { all: products.length, active: 0, draft: 0, archived: 0 } as Record<string, number>;
-  for (const product of products) counts[product.status] += 1;
+  const counts = { all: products.length, active: 0, draft: 0, archived: 0, wholesale: 0 } as Record<string, number>;
+  for (const product of products) {
+    counts[product.status] += 1;
+    if (product.wholesaleOnly) counts.wholesale += 1;
+  }
 
   const term = normalize(q);
   const filtered = products
-    .filter((product) => !status || product.status === status)
+    .filter((product) => (status === 'por-mayor' ? product.wholesaleOnly : !status || product.status === status))
     .filter((product) => !brandId || product.brandId === brandId)
     .filter((product) => (stockFilter === 'agotados' ? product.stock === 0 : stockFilter === 'bajo' ? product.stock > 0 && product.stock <= LOW_STOCK : stockFilter === 'con-stock' ? product.stock > 0 : true))
     .filter((product) => !term || normalize([product.name, product.brand, product.category, ...product.skus].filter(Boolean).join(' ')).includes(term));
@@ -82,6 +85,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           { key: 'active', label: 'Publicados', count: counts.active },
           { key: 'draft', label: 'Borradores', count: counts.draft },
           { key: 'archived', label: 'Archivados', count: counts.archived },
+          { key: 'por-mayor', label: 'Por mayor', count: counts.wholesale },
         ].map((tab) => (
           <Link
             key={tab.label}
@@ -89,7 +93,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
             aria-current={status === tab.key ? 'page' : undefined}
             className={cn('border px-3 py-1.5 text-xs uppercase tracking-wider', status === tab.key ? 'border-foreground bg-foreground text-background' : 'border-border text-muted-foreground hover:text-foreground')}
           >
-            {tab.label} <span className="tabular-nums opacity-70">{tab.count}</span>
+            {tab.label} <span className={cn('tabular-nums', status === tab.key && 'opacity-70')}>{tab.count}</span>
           </Link>
         ))}
       </nav>
@@ -145,6 +149,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
             compareAtPrice: product.compareAtPrice,
             stock: product.stock,
             status: product.status,
+            wholesaleOnly: product.wholesaleOnly,
             imageCount: product.imageCount,
             primaryImage: product.primaryImage,
           }))}

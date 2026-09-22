@@ -32,6 +32,7 @@ export default async function NewProductPage() {
           price: null,
           compare_at_price: null,
           status: 'active',
+          wholesale_only: false,
           specs: [],
           variants: [],
           images: [],

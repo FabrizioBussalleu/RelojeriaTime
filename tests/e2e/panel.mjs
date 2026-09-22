@@ -56,7 +56,11 @@ const userId = created.id;
 const originalPositions = await sql(`select id, position from public.products`);
 const [originalSettings] = await sql(`select sold_out_last, instagram_url from public.store_settings`);
 const [stockProduct] = await sql(`select v.id as variant_id, v.stock, p.name, p.id as product_id from public.product_variants v join public.products p on p.id = v.product_id
-  where p.status = 'active' and v.stock >= 3 order by p.position limit 1`);
+  where p.status = 'active' and v.stock >= 4 order by v.stock desc, p.position limit 1`);
+if (!stockProduct) {
+  console.error('Para esta prueba hace falta un reloj publicado con al menos 4 unidades de stock (crea uno o corre "npm run demo:seed").');
+  process.exit(1);
+}
 const productIds = new Set();
 
 async function cleanup() {
@@ -247,6 +251,17 @@ try {
   await page.getByText('Marcado como agotado').waitFor();
   const [soldOut] = await sql(`select sum(stock) as stock from public.product_variants where product_id = '${product.id}'`);
   check('marcar agotado pone el stock en 0 sin tocar fotos', Number(soldOut.stock) === 0 && (await assetExists(images[1].public_id)));
+
+  // Organizador: dos órdenes (tienda y por mayor)
+  await page.goto(`${base}/admin/organizador`);
+  await page.waitForTimeout(1200);
+  const pestañas = (await page.getByRole('tab').allInnerTexts()).map((texto) => texto.replace(/\s+/g, ' ').trim());
+  check('organizador: pestañas de tienda y por mayor', pestañas.length === 2 && /tienda/i.test(pestañas[0]) && /por mayor/i.test(pestañas[1]), pestañas.join(' | '));
+  await page.getByRole('tab', { name: /al por mayor/i }).click();
+  await page.waitForTimeout(600);
+  check('organizador: la pestaña de por mayor muestra relojes', (await page.locator('[role=tabpanel]:not([hidden]) ul li').count()) > 0);
+  await page.getByRole('tab', { name: /^tienda/i }).click();
+  await page.waitForTimeout(400);
 
   // Organizador ----------------------------------------------------------------------------------------
   await page.goto(`${base}/admin/organizador`);

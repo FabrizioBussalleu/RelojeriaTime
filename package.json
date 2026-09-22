@@ -22,8 +22,9 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "e2e:tienda": "node tests/e2e/tienda.mjs",
     "e2e:panel": "node tests/e2e/panel.mjs",
+    "e2e:mayor": "node tests/e2e/por-mayor.mjs",
     "e2e:crm": "node tests/e2e/crm.mjs",
-    "e2e": "node tests/e2e/tienda.mjs && node tests/e2e/panel.mjs && node tests/e2e/crm.mjs"
+    "e2e": "node tests/e2e/tienda.mjs && node tests/e2e/por-mayor.mjs && node tests/e2e/panel.mjs && node tests/e2e/crm.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",

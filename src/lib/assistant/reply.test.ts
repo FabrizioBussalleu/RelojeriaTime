@@ -15,6 +15,8 @@ function product(overrides: Partial<CatalogProduct> & Pick<CatalogProduct, 'id' 
     price: 1000,
     compareAtPrice: null,
     position: 1,
+    wholesalePosition: 1,
+    wholesaleOnly: false,
     createdAt: '2026-09-01T00:00:00Z',
     stock: 3,
     images: [

@@ -2,25 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Plus } from "lucide-react";
-import { useCart } from "@/contexts/CartContext";
 import type { CatalogProduct } from "@/lib/catalog";
 import { formatPEN } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-const MAX_PER_ORDER = 10;
-
 // Imagen y nombre enlazan a la ficha (el de la imagen fuera del orden de tabulación para no duplicarlo).
-// La compra rápida es un botón aparte, no anidado en el enlace, y solo existe si hay una única variante con stock.
-// Solo aparece al pasar el mouse: en celulares y tabletas no se muestra (taparía la foto) y tocar la tarjeta
-// lleva a la ficha del producto.
+// Sin atajo de "agregar" sobre la foto: la tarjeta solo muestra el reloj y lleva a su ficha.
 const ProductCard = ({ product, priority = false }: { product: CatalogProduct; priority?: boolean }) => {
-  const { addItem } = useCart();
   const href = `/producto/${product.slug}`;
   const soldOut = product.stock <= 0;
   const onSale = product.compareAtPrice !== null && product.compareAtPrice > product.price;
   const [image, hoverImage] = product.images;
-  const quickAddVariant = product.variants.length === 1 && product.variants[0].stock > 0 ? product.variants[0] : null;
 
   return (
     <article className="group">
@@ -52,32 +44,6 @@ const ProductCard = ({ product, priority = false }: { product: CatalogProduct; p
           {onSale && !soldOut ? <span className="badge-sale">Oferta</span> : null}
         </div>
 
-        {quickAddVariant ? (
-          <button
-            type="button"
-            onClick={() =>
-              addItem({
-                variantId: quickAddVariant.id,
-                productId: product.id,
-                slug: product.slug,
-                name: product.name,
-                brand: product.brand,
-                variantLabel: null,
-                price: quickAddVariant.price,
-                imageSrc: image?.src ?? null,
-                maxQuantity: Math.min(quickAddVariant.stock, MAX_PER_ORDER),
-              })
-            }
-            aria-label={`Agregar ${product.name} al carrito`}
-            className="absolute bottom-3 left-3 right-3 flex items-center justify-center gap-2 bg-foreground py-3 text-background font-display uppercase text-xs tracking-[0.15em]
-                       opacity-0 translate-y-2 transition-all duration-300 hover:bg-foreground/90
-                       group-hover:opacity-100 group-hover:translate-y-0 focus-visible:opacity-100 focus-visible:translate-y-0
-                       [@media(hover:none)]:hidden"
-          >
-            <Plus className="w-4 h-4" strokeWidth={1.5} aria-hidden="true" />
-            Agregar
-          </button>
-        ) : null}
       </div>
 
       <div className="mt-4 space-y-1">

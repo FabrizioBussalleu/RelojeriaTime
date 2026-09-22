@@ -9,6 +9,7 @@ const SHOP_LINKS = [
   { href: "/#catalogo", label: "Relojes" },
   { href: "/seguimiento", label: "Seguimiento de pedido" },
   { href: "/registro", label: "Recibe novedades" },
+  { href: "/por-mayor", label: "Compras al por mayor" },
 ];
 
 const HELP_LINKS = [

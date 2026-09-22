@@ -245,7 +245,8 @@ export default function CheckoutView({ paymentOptions, reserveHours }: { payment
             {pending ? "Registrando pedido…" : "Confirmar pedido"}
           </button>
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            Al confirmar verás los datos para pagar. Reservamos tu pedido por {reserveHours} horas.
+            Al confirmar guardamos tu reloj por {reserveHours} horas y ponemos el pedido en marcha. Después eliges cómo pagar: adelantado con los
+            datos que te mostramos, o contra entrega al recibirlo. Lo coordinamos por WhatsApp.
           </p>
         </aside>
       </div>

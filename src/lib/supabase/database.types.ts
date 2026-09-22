@@ -763,6 +763,8 @@ export type Database = {
           specs: Json
           status: Database["public"]["Enums"]["product_status"]
           updated_at: string
+          wholesale_only: boolean
+          wholesale_position: number
         }
         Insert: {
           brand_id?: string | null
@@ -781,6 +783,8 @@ export type Database = {
           specs?: Json
           status?: Database["public"]["Enums"]["product_status"]
           updated_at?: string
+          wholesale_only?: boolean
+          wholesale_position?: number
         }
         Update: {
           brand_id?: string | null
@@ -799,6 +803,8 @@ export type Database = {
           specs?: Json
           status?: Database["public"]["Enums"]["product_status"]
           updated_at?: string
+          wholesale_only?: boolean
+          wholesale_position?: number
         }
         Relationships: [
           {
@@ -1111,7 +1117,10 @@ export type Database = {
       first_sale_at: { Args: never; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       normalize_phone: { Args: { p_phone: string }; Returns: string }
-      reorder_products: { Args: { p_ids: string[] }; Returns: undefined }
+      reorder_products: {
+        Args: { p_ids: string[]; p_scope?: string }
+        Returns: undefined
+      }
       sales_breakdown: {
         Args: {
           p_dimension: string

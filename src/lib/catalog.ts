@@ -20,6 +20,9 @@ export type CatalogProduct = {
   price: number;
   compareAtPrice: number | null;
   position: number;
+  wholesalePosition: number;
+  // Solo al por mayor: no aparece en el catálogo de la tienda, únicamente en /por-mayor.
+  wholesaleOnly: boolean;
   createdAt: string;
   stock: number;
   images: CatalogImage[];
@@ -33,7 +36,7 @@ export type ProductDetail = CatalogProduct & {
 
 type ImageRow = { public_id: string; is_primary: boolean; position: number; crop: unknown; brightness: number; contrast: number };
 
-const PRODUCT_FIELDS = `id, slug, name, description, price, compare_at_price, position, created_at, gender, movement, specs,
+const PRODUCT_FIELDS = `id, slug, name, description, price, compare_at_price, position, wholesale_position, wholesale_only, created_at, gender, movement, specs,
   brand:brands(name), category:categories(name),
   images:product_images(public_id, is_primary, position, crop, brightness, contrast),
   variants:product_variants(id, label, stock, price_override, position)`;
@@ -68,6 +71,8 @@ type ProductRow = {
   price: number;
   compare_at_price: number | null;
   position: number;
+  wholesale_position: number;
+  wholesale_only: boolean;
   created_at: string;
   gender: WatchGender | null;
   movement: WatchMovement | null;
@@ -94,11 +99,36 @@ function toProduct(row: ProductRow): ProductDetail {
     price: row.price,
     compareAtPrice: row.compare_at_price,
     position: row.position,
+    wholesalePosition: row.wholesale_position,
+    wholesaleOnly: row.wholesale_only,
     createdAt: row.created_at,
     stock: variants.reduce((total, variant) => total + variant.stock, 0),
     images: toImages(row.images, row.name),
     variants,
     specs: toSpecs(row.specs),
+  };
+}
+
+// Sin descripción ni especificaciones: los listados no las usan y así viajan menos datos al navegador.
+function toCatalogProduct(row: ProductRow): CatalogProduct {
+  const product = toProduct(row);
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    brand: product.brand,
+    category: product.category,
+    gender: product.gender,
+    movement: product.movement,
+    price: product.price,
+    compareAtPrice: product.compareAtPrice,
+    position: product.position,
+    wholesalePosition: product.wholesalePosition,
+    wholesaleOnly: product.wholesaleOnly,
+    createdAt: product.createdAt,
+    stock: product.stock,
+    images: product.images,
+    variants: product.variants,
   };
 }
 
@@ -109,29 +139,25 @@ export async function getCatalog(): Promise<CatalogProduct[]> {
     .from('products')
     .select(PRODUCT_FIELDS)
     .eq('status', 'active')
+    .eq('wholesale_only', false)
     .order('position')
     .order('created_at', { ascending: false });
   if (error) throw error;
   // Sin descripción ni especificaciones: la home no las usa y así viajan menos datos al navegador.
-  return (data as unknown as ProductRow[]).map((row): CatalogProduct => {
-    const product = toProduct(row);
-    return {
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      brand: product.brand,
-      category: product.category,
-      gender: product.gender,
-      movement: product.movement,
-      price: product.price,
-      compareAtPrice: product.compareAtPrice,
-      position: product.position,
-      createdAt: product.createdAt,
-      stock: product.stock,
-      images: product.images,
-      variants: product.variants,
-    };
-  });
+  return (data as unknown as ProductRow[]).map(toCatalogProduct);
+}
+
+// Catálogo de por mayor: todo lo publicado (tienda + exclusivos de por mayor) con su propio orden.
+// No se usan precios en esa página: el cliente arma una lista y pide cotización.
+export async function getWholesaleCatalog(): Promise<CatalogProduct[]> {
+  const { data, error } = await createPublicClient()
+    .from('products')
+    .select(PRODUCT_FIELDS)
+    .eq('status', 'active')
+    .order('wholesale_position')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data as unknown as ProductRow[]).map(toCatalogProduct);
 }
 
 // cache(): generateMetadata y la página comparten la misma consulta dentro de un request.
