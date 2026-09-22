@@ -20,7 +20,7 @@ Guía para publicar la tienda en Vercel y mantenerla. La base (Supabase, proyect
 | `CLOUDINARY_API_KEY` | Production, Preview | **sí** | Cloudinary → Settings → API Keys |
 | `CLOUDINARY_API_SECRET` | Production, Preview | **sí** | ídem |
 | `CLOUDINARY_FOLDER` | Production, Preview | no | `imagenes` |
-| `NEXT_PUBLIC_SITE_URL` | Production | no | `https://tu-dominio` (en Preview se usa la URL del despliegue) |
+| `NEXT_PUBLIC_SITE_URL` | Production | no | `https://relojeria-time.com` (en Preview se usa la URL del despliegue) |
 | `CRON_SECRET` | Production | **sí** | Texto aleatorio largo: `openssl rand -base64 32` |
 | `ORDER_LINK_SECRET` | Production, Preview | **sí** | Texto aleatorio largo (firma los enlaces de pedido; si cambia, los enlaces ya enviados dejan de funcionar) |
 | `ANTHROPIC_API_KEY` | Production | **sí** | console.anthropic.com (asistente de WhatsApp; sin ella los mensajes quedan para el equipo) |
@@ -30,7 +30,7 @@ Guía para publicar la tienda en Vercel y mantenerla. La base (Supabase, proyect
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Production, Preview | no | Cloudflare → Turnstile → widget → Site Key |
 | `TURNSTILE_SECRET_KEY` | Production, Preview | **sí** | Ídem → Secret Key |
 
-   Solo si se conecta WhatsApp: `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_WABA_ID`, `META_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` (Meta) o `D360_API_KEY`, `WHATSAPP_WEBHOOK_SECRET` (360dialog). Webhook: `https://tu-dominio/api/whatsapp/webhook`.
+   Solo si se conecta WhatsApp: `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_WABA_ID`, `META_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` (Meta) o `D360_API_KEY`, `WHATSAPP_WEBHOOK_SECRET` (360dialog). Webhook: `https://relojeria-time.com/api/whatsapp/webhook`.
 
    **Correos de pedido (gratis con Gmail):** en la cuenta de la tienda activar la verificación en 2 pasos y crear una contraseña de aplicación en myaccount.google.com/apppasswords (16 letras). Con `SMTP_USER` y `SMTP_PASSWORD` cada pedido envía un aviso al correo de contacto de Ajustes (o a `ORDER_NOTIFICATION_EMAIL`) y la confirmación al cliente, con el código, el detalle y cómo pagar. Gmail permite unos 500 destinatarios al día. Con dominio propio conviene pasar a Brevo o Resend cambiando `SMTP_HOST`, `SMTP_PORT` y las credenciales. Los pedidos con correos de prueba (`@example.com`, `.test`, `.invalid`) no envían nada.
 
@@ -42,12 +42,12 @@ Guía para publicar la tienda en Vercel y mantenerla. La base (Supabase, proyect
 
 ## 2. Dominio
 
-Settings → Domains → agregar `tu-dominio` y `www.tu-dominio` (Vercel indica los registros DNS: `A 76.76.21.21` para el dominio raíz y `CNAME cname.vercel-dns.com` para `www`). Después, actualizar `NEXT_PUBLIC_SITE_URL` y volver a desplegar.
+Hecho: `relojeria-time.com` es el dominio principal y `www.relojeria-time.com` redirige a él (DNS en GoDaddy: `A @ 76.76.21.21` y `CNAME www cname.vercel-dns.com`). `NEXT_PUBLIC_SITE_URL` vale `https://relojeria-time.com`. Si algún día cambia el dominio: actualizar esa variable, los *Hostnames* del widget de Cloudflare Turnstile y volver a desplegar.
 
 ## 3. Ajustes fuera del código
 
 - **Supabase → Authentication → Settings:** activar *Leaked password protection*. El registro público debe seguir desactivado (los administradores se crean en Authentication → Users y se les da acceso en el panel → Ajustes).
-- **Netlify:** el sitio viejo (`alex-artesano.netlify.app`) se puede borrar o redirigir al dominio nuevo (Site configuration → Domain management o un `_redirects` con `/* https://tu-dominio/:splat 301!`).
+- **Netlify:** el sitio viejo (`alex-artesano.netlify.app`) se puede borrar o redirigir al dominio nuevo (Site configuration → Domain management o un `_redirects` con `/* https://relojeria-time.com/:splat 301!`).
 - **Credenciales compartidas durante el desarrollo:** rotar el token `sbp_` de Supabase y el API secret de Cloudinary, y actualizar Vercel y `.env.local`.
 
 ## 4. Verificación después de publicar
@@ -55,7 +55,7 @@ Settings → Domains → agregar `tu-dominio` y `www.tu-dominio` (Vercel indica 
 1. Home, un producto y "Ver más". Compartir el enlace de un producto por WhatsApp muestra foto, nombre y precio.
 2. Pedido real de prueba (Yape) con tu correo → llegan los dos correos (tienda y cliente) → aparece en Panel → Pedidos → cancelarlo (el stock vuelve).
 3. Panel: ingresar (aparece el verificador de Cloudflare), crear un producto con una foto, editarla, publicarla, verla en la tienda y eliminarlo (la foto desaparece de Cloudinary).
-4. Cron: `curl -H "Authorization: Bearer $CRON_SECRET" https://tu-dominio/api/cron/maintenance` responde `{"ok":true,...}`.
+4. Cron: `curl -H "Authorization: Bearer $CRON_SECRET" https://relojeria-time.com/api/cron/maintenance` responde `{"ok":true,...}`.
 5. Rendimiento: PageSpeed Insights de la home y de un producto (objetivo ≥ 90 en celular).
 
 ## 5. Migraciones y pruebas
