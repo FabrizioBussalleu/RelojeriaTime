@@ -52,7 +52,7 @@ Hecho: `relojeria-time.com` es el dominio principal y `www.relojeria-time.com` r
 
 ## 4. Verificación después de publicar
 
-1. Home, un producto y "Ver más". Compartir el enlace de un producto por WhatsApp muestra foto, nombre y precio.
+1. Home, un producto, "Ver más" y `/por-mayor` (sin precios, la cotización abre WhatsApp con la lista). Compartir el enlace de un producto por WhatsApp muestra foto, nombre y precio.
 2. Pedido real de prueba (Yape) con tu correo → llegan los dos correos (tienda y cliente) → aparece en Panel → Pedidos → cancelarlo (el stock vuelve).
 3. Panel: ingresar (aparece el verificador de Cloudflare), crear un producto con una foto, editarla, publicarla, verla en la tienda y eliminarlo (la foto desaparece de Cloudinary).
 4. Cron: `curl -H "Authorization: Bearer $CRON_SECRET" https://relojeria-time.com/api/cron/maintenance` responde `{"ok":true,...}`.
