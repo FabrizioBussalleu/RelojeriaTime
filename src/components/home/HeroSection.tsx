@@ -1,12 +1,6 @@
 import Image from "next/image";
-import { preconnect, preload } from "react-dom";
 
-// Foto: Unsplash (licencia Unsplash: uso comercial libre). Reloj de acero con esfera negra y malla
-// milanesa, sin marca a la vista. https://unsplash.com/photos/black-and-silver-round-analog-watch-
-const PHOTO = "https://images.unsplash.com/photo-1585679212204-355a6966bf9a";
-const WIDTHS = [640, 960, 1280, 1600, 2000, 2400];
-const photoUrl = (width: number) => `${PHOTO}?auto=format&fit=crop&w=${width}&q=75`;
-const SRC_SET = WIDTHS.map((width) => `${photoUrl(width)} ${width}w`).join(", ");
+const PHOTO = "/Hero.png";
 const SIZES = "(min-width: 768px) 58vw, 100vw";
 
 // Entrada en CSS (sin JavaScript). El título y el texto solo se deslizan, sin transparencia, para que
@@ -17,26 +11,19 @@ const rise = "motion-safe:animate-rise";
 // Hero a pantalla completa (menos la barra de avisos y el menú): todo blanco, con la foto a la derecha
 // (arriba en celular) fundiéndose con el fondo, sin costuras entre la foto y el texto.
 const HeroSection = () => {
-  // La foto es el elemento más grande de la home: se pide antes que el resto.
-  preconnect("https://images.unsplash.com");
-  preload(photoUrl(1280), { as: "image", imageSrcSet: SRC_SET, imageSizes: SIZES, fetchPriority: "high" });
-
   return (
     <section
       className="theme-light relative h-[calc(100svh-var(--site-top))] min-h-[34rem] overflow-hidden"
       aria-labelledby="hero-titulo"
     >
       <div className="absolute inset-x-0 top-0 h-[52%] md:inset-y-0 md:left-auto md:h-full md:w-[58%]" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element -- foto externa con srcset propio de Unsplash */}
-        <img
-          src={photoUrl(1280)}
-          srcSet={SRC_SET}
-          sizes={SIZES}
+        <Image
+          src={PHOTO}
           alt=""
-          width={2400}
-          height={1800}
-          fetchPriority="high"
-          decoding="async"
+          fill
+          priority
+          sizes={SIZES}
+          quality={75}
           className="h-full w-full object-cover object-[52%_50%] md:object-[50%_50%]"
         />
         {/* Funde el borde de la foto con el blanco: abajo en celular, a la izquierda en escritorio. */}
