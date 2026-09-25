@@ -1113,6 +1113,7 @@ export type Database = {
         Returns: Json
       }
       crm_segment: { Args: { p_filters: Json }; Returns: string[] }
+      delete_order: { Args: { p_order_id: string }; Returns: string }
       expire_pending_orders: { Args: never; Returns: number }
       first_sale_at: { Args: never; Returns: string }
       is_admin: { Args: never; Returns: boolean }

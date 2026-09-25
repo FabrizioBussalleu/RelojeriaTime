@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { CopyLink, DeliveryEditor, InternalNotes, OrderStatusControl, WhatsAppOrderLink } from '@/components/admin/orders/OrderActions';
+import { CopyLink, DeliveryEditor, InternalNotes, OrderDangerZone, OrderStatusControl, WhatsAppOrderLink } from '@/components/admin/orders/OrderActions';
 import { Badge, Card, formatDateTime, PageHeader } from '@/components/admin/ui';
 import { ORDER_STATUS_TONES } from '@/lib/admin/labels';
 import { requireAdmin } from '@/lib/auth';
@@ -203,6 +203,8 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           <Card title="Notas internas">
             <InternalNotes orderId={order.id} initial={order.internal_notes ?? ''} />
           </Card>
+
+          <OrderDangerZone orderId={order.id} code={order.code} status={status} units={units} />
         </div>
       </div>
     </>

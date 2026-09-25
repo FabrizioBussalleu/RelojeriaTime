@@ -25,13 +25,3 @@ export async function saveProductOrder(ids: string[], scope: OrderScope = 'tiend
   revalidatePath('/admin/productos');
   return { ok: true };
 }
-
-export async function setSoldOutLast(value: boolean): Promise<Result> {
-  const session = await getAdminSession();
-  if (!session) return { ok: false, error: 'Tu sesión expiró.' };
-  const { error } = await session.supabase.from('store_settings').update({ sold_out_last: value }).eq('id', true);
-  if (error) return { ok: false, error: 'No se pudo guardar el ajuste.' };
-  revalidatePath('/');
-  revalidatePath('/admin/organizador');
-  return { ok: true };
-}

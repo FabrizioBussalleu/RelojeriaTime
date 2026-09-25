@@ -1,6 +1,8 @@
 import Image from "next/image";
 
-const PHOTO = "/Hero.png";
+// La foto vive en Cloudinary: el loader entrega WebP del ancho justo (~40–65 KB) en vez del PNG
+// original de 2 MB, que era con diferencia lo más pesado de la página.
+const PHOTO = "imagenes/site/hero";
 const SIZES = "(min-width: 768px) 58vw, 100vw";
 
 // Entrada en CSS (sin JavaScript). El título y el texto solo se deslizan, sin transparencia, para que
@@ -23,7 +25,6 @@ const HeroSection = () => {
           fill
           priority
           sizes={SIZES}
-          quality={75}
           className="h-full w-full object-cover object-[52%_50%] md:object-[50%_50%]"
         />
         {/* Funde el borde de la foto con el blanco: abajo en celular, a la izquierda en escritorio. */}

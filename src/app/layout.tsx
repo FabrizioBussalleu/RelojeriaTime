@@ -26,6 +26,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="es-PE" className={`${oswald.variable} ${inter.variable}`}>
       <body>
+        {/* Todas las fotos vienen de Cloudinary: abrir la conexión desde el inicio adelanta la del hero. */}
+        <link rel="preconnect" href="https://res.cloudinary.com" />
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -6,18 +6,15 @@ import type { CatalogProduct } from "@/lib/catalog";
 
 const PAGE_SIZE = 12;
 
-// soldOutLast: ajuste del organizador. Si está apagado, el orden manual manda también sobre los agotados.
-type CatalogProps = { products: CatalogProduct[]; error: string | null; soldOutLast?: boolean };
+type CatalogProps = { products: CatalogProduct[]; error: string | null };
 
 // Sin filtros en la home: el catálogo va en el orden del organizador.
-function sortProducts(products: CatalogProduct[], soldOutLast: boolean) {
-  return [...products].sort(
-    (a, b) => (soldOutLast ? Number(a.stock <= 0) - Number(b.stock <= 0) : 0) || a.position - b.position || b.createdAt.localeCompare(a.createdAt)
-  );
+function sortProducts(products: CatalogProduct[]) {
+  return [...products].sort((a, b) => a.position - b.position || b.createdAt.localeCompare(a.createdAt));
 }
 
-export default function CatalogSection({ products, error, soldOutLast = true }: CatalogProps) {
-  const visibleProducts = useMemo(() => sortProducts(products, soldOutLast), [products, soldOutLast]);
+export default function CatalogSection({ products, error }: CatalogProps) {
+  const visibleProducts = useMemo(() => sortProducts(products), [products]);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   return (
@@ -39,7 +36,7 @@ export default function CatalogSection({ products, error, soldOutLast = true }: 
         ) : null}
 
         {!error && products.length === 0 ? (
-          <p className="border border-border px-4 py-10 text-center text-sm text-muted-foreground">Muy pronto publicaremos nuestros relojes.</p>
+          <p className="border border-border px-4 py-10 text-center text-sm text-muted-foreground">Muy pronto publicaremos nuevos relojes.</p>
         ) : null}
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-6">

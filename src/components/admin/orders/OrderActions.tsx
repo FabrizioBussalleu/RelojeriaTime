@@ -2,13 +2,13 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Copy, Loader2, MessageCircle } from 'lucide-react';
+import { Check, Copy, Loader2, MessageCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { changeOrderStatus, saveInternalNotes, updateDelivery } from '@/app/admin/(panel)/pedidos/actions';
+import { changeOrderStatus, deleteOrder, saveInternalNotes, updateDelivery } from '@/app/admin/(panel)/pedidos/actions';
 import { ORDER_NEXT_STEP } from '@/lib/admin/labels';
 import { ORDER_STATUS_LABELS, type OrderStatus } from '@/lib/store';
 import { ConfirmDialog } from '../Dialog';
-import { buttonClass, Field, inputClass } from '../ui';
+import { buttonClass, Card, Field, inputClass } from '../ui';
 
 export function OrderStatusControl({ orderId, status }: { orderId: string; status: OrderStatus }) {
   const router = useRouter();
@@ -81,6 +81,53 @@ export function OrderStatusControl({ orderId, status }: { orderId: string; statu
         onConfirm={() => apply('cancelled')}
       />
     </div>
+  );
+}
+
+// Para pedidos creados por error o de prueba. Un pedido real que no se concretó se cancela: así
+// queda el registro de lo que pasó.
+export function OrderDangerZone({ orderId, code, status, units }: { orderId: string; code: string; status: OrderStatus; units: number }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+  const devuelveStock = status !== 'cancelled';
+  const unidades = `${units} ${units === 1 ? 'unidad vuelve' : 'unidades vuelven'} al stock`;
+
+  return (
+    <Card title="Eliminar pedido">
+      <p className="text-sm text-muted-foreground">
+        Borra el pedido, sus productos y su historial para siempre; deja de contar en las ventas. Si es un pedido real que no se concretó, mejor{' '}
+        <strong>cancélalo</strong>: queda a la vista con su historial.
+      </p>
+      <button type="button" className={`${buttonClass.danger} mt-4`} onClick={() => setOpen(true)}>
+        <Trash2 className="h-4 w-4" aria-hidden /> Eliminar pedido
+      </button>
+      <ConfirmDialog
+        open={open}
+        onOpenChange={setOpen}
+        title="Eliminar pedido"
+        description={
+          <>
+            Se eliminará el pedido <strong>{code}</strong> de forma definitiva: no quedará en la lista, en el historial ni en los reportes.{' '}
+            {devuelveStock ? `${unidades} de la tienda.` : 'El stock ya volvió cuando se canceló, así que no cambia.'}
+          </>
+        }
+        confirmLabel="Eliminar definitivamente"
+        pending={pending}
+        onConfirm={() =>
+          startTransition(async () => {
+            const result = await deleteOrder(orderId);
+            if (!result.ok) {
+              toast.error(result.error);
+              return;
+            }
+            toast.success(`Pedido ${code} eliminado`);
+            router.push('/admin/pedidos');
+            router.refresh();
+          })
+        }
+      />
+    </Card>
   );
 }
 

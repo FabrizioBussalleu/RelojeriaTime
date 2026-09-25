@@ -133,7 +133,7 @@ function toCatalogProduct(row: ProductRow): CatalogProduct {
 }
 
 // Catálogo completo de la tienda (solo activos; RLS ya lo garantiza para la clave pública).
-// Los agotados se incluyen: se muestran en gris al final.
+// Incluye los agotados: la home los filtra al listar y el asistente de WhatsApp necesita reconocerlos.
 export async function getCatalog(): Promise<CatalogProduct[]> {
   const { data, error } = await createPublicClient()
     .from('products')
@@ -200,7 +200,6 @@ export type StoreSettings = {
   bankAccounts: { bank: string; holder: string; account: string; cci: string }[];
   contactEmail: string | null;
   pendingOrderTtlHours: number;
-  soldOutLast: boolean;
   socialLinks: SocialLink[];
 };
 
@@ -216,7 +215,6 @@ export async function getStoreSettings(): Promise<StoreSettings> {
     bankAccounts,
     contactEmail: data.contact_email,
     pendingOrderTtlHours: data.pending_order_ttl_hours,
-    soldOutLast: data.sold_out_last,
     socialLinks: (
       [
         { brand: 'instagram', label: 'Instagram', url: data.instagram_url },

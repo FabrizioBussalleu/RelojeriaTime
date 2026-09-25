@@ -82,12 +82,10 @@ try {
   await settle(desk);
 
   const names = await desk.locator('#catalogo article h3').allInnerTexts();
-  check('Home lista los 8 relojes demo', names.length === 8, names.join(', '));
-  check('El agotado aparece al final', /heritage bronce/i.test(names.at(-1) ?? ''), names.at(-1));
-  check(
-    'Badges "Agotado" y "Oferta" visibles',
-    (await desk.getByText('Agotado', { exact: true }).count()) >= 1 && (await desk.getByText('Oferta', { exact: true }).count()) === 1
-  );
+  // El demo trae 8 relojes; el agotado (Heritage Bronce) no se lista en la tienda.
+  check('Home lista los 7 relojes demo con stock', names.length === 7, names.join(', '));
+  check('El agotado no aparece en la home', !/heritage bronce/i.test(names.join(' ')), names.join(', '));
+  check('Badge "Oferta" visible', (await desk.getByText('Oferta', { exact: true }).count()) === 1);
   check('La home no muestra filtros', (await desk.locator('#catalogo select').count()) === 0);
   const heroBorder = await desk.locator('section[aria-labelledby="hero-titulo"]').evaluate((el) => getComputedStyle(el).borderBottomWidth);
   check('Sin línea debajo del hero', heroBorder === '0px', heroBorder);

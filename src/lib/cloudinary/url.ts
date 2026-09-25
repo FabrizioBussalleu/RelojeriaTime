@@ -34,11 +34,18 @@ export function cloudinaryImageSrc(publicId: string, edits: ImageEdits = {}) {
   return steps.length ? `${publicId}?e=${encodeURIComponent(steps.join('/'))}` : publicId;
 }
 
+// Hasta este ancho la foto es una vista previa (grilla de la home, miniaturas): ahí se entrega con
+// q_auto:eco, que pesa ~20% menos que q_auto. Medido sobre las fotos reales, la diferencia es de
+// 1,5/255 por píxel: invisible a ese tamaño. Las fotos grandes (ficha del producto, hero) siguen
+// con q_auto, donde sí se notaría.
+const ANCHO_VISTA_PREVIA = 640;
+
 export function cloudinaryLoaderUrl(src: string, width: number, quality?: number) {
   const [publicId, query] = src.split('?e=');
   if (!CLOUD_NAME) throw new Error('Falta NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME.');
   const edits = query ? decodeURIComponent(query) : '';
-  const delivery = `f_auto,q_${quality ?? 'auto'},c_limit,w_${width}`;
+  const calidad = quality ?? (width <= ANCHO_VISTA_PREVIA ? 'auto:eco' : 'auto');
+  const delivery = `f_auto,q_${calidad},c_limit,w_${width}`;
   const path = publicId.split('/').map(encodeURIComponent).join('/');
   return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${edits ? `${edits}/` : ''}${delivery}/${path}`;
 }

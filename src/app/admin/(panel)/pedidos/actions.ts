@@ -32,6 +32,25 @@ export async function changeOrderStatus(orderId: string, status: OrderStatus, no
   return { ok: true };
 }
 
+// Borra el pedido con sus productos e historial (para los creados por error o de prueba). El stock
+// vuelve a la tienda salvo que el pedido ya estuviera cancelado, donde ya había vuelto.
+export async function deleteOrder(orderId: string): Promise<Result> {
+  const session = await getAdminSession();
+  if (!session) return { ok: false, error: 'Tu sesión expiró. Vuelve a ingresar.' };
+  const { error } = await session.supabase.rpc('delete_order', { p_order_id: orderId });
+  if (error) {
+    if (error.code === 'P0001' || error.code === 'P0002') return { ok: false, error: error.message };
+    console.error('delete_order', error);
+    return { ok: false, error: 'No se pudo eliminar el pedido.' };
+  }
+  revalidatePath('/admin/pedidos');
+  revalidatePath('/admin');
+  // Las unidades vuelven al catálogo: la tienda debe reflejarlo.
+  revalidatePath('/');
+  revalidatePath('/producto/[slug]', 'page');
+  return { ok: true };
+}
+
 export async function saveInternalNotes(orderId: string, notes: string): Promise<Result> {
   const session = await getAdminSession();
   if (!session) return { ok: false, error: 'Tu sesión expiró.' };

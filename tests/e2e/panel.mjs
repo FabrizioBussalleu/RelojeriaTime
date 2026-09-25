@@ -54,7 +54,7 @@ const created = await (await fetch(`${url}/auth/v1/admin/users`, { method: 'POST
 if (!created.id) throw new Error(`No se creó el admin temporal: ${JSON.stringify(created)}`);
 const userId = created.id;
 const originalPositions = await sql(`select id, position from public.products`);
-const [originalSettings] = await sql(`select sold_out_last, instagram_url from public.store_settings`);
+const [originalSettings] = await sql(`select instagram_url from public.store_settings`);
 const [stockProduct] = await sql(`select v.id as variant_id, v.stock, p.name, p.id as product_id from public.product_variants v join public.products p on p.id = v.product_id
   where p.status = 'active' and v.stock >= 4 order by v.stock desc, p.position limit 1`);
 if (!stockProduct) {
@@ -69,7 +69,7 @@ async function cleanup() {
     ['pedidos, clientes, stock y ajustes', () => sql(`delete from public.orders where customer_email = 'e2e-panel@example.com';
     delete from public.customers where phone like '5190000%';
     update public.product_variants set stock = ${stockProduct.stock} where id = '${stockProduct.variant_id}';
-    update public.store_settings set sold_out_last = ${originalSettings.sold_out_last}, instagram_url = ${originalSettings.instagram_url ? `'${originalSettings.instagram_url}'` : 'null'};`)],
+    update public.store_settings set instagram_url = ${originalSettings.instagram_url ? `'${originalSettings.instagram_url}'` : 'null'};`)],
     ['productos E2E', async () => {
       for (const row of await sql(`select id from public.products where name like 'E2E %'`)) productIds.add(row.id);
       await sql(`delete from public.products where name like 'E2E %'; delete from public.brands where name like 'E2E %';`);
@@ -265,7 +265,15 @@ try {
 
   // Organizador ----------------------------------------------------------------------------------------
   await page.goto(`${base}/admin/organizador`);
-  check('organizador: el agotado aparece en gris al final', await page.locator('section:has(h2:text("Agotados")) li:has-text("E2E Reloj Prueba") .grayscale').isVisible());
+  // El agotado se ve en gris pero no se mueve: su posición queda lista para cuando vuelva el stock.
+  const posiciones = await page.locator('[role=tabpanel]:not([hidden]) ul li').allInnerTexts();
+  check(
+    'organizador: el agotado se ve en gris sin cambiar de sitio',
+    (await page.locator('li:has-text("E2E Reloj Prueba") .grayscale').first().isVisible()) &&
+      (await page.locator('h2:has-text("Agotados")').count()) === 0 &&
+      posiciones.findIndex((texto) => texto.includes('E2E Reloj Prueba')) < posiciones.length - 1,
+    posiciones.length
+  );
   await audit(page, 'organizador');
   await page.click('button:has-text("Precio ↓")');
   check('atajo de orden en vista previa (sin guardar)', await page.getByText('Hay cambios sin guardar').isVisible());
@@ -297,10 +305,8 @@ try {
   await page.waitForTimeout(500);
   check('mover con el teclado', await page.getByText('Hay cambios sin guardar').isVisible());
   await page.click('button:has-text("Descartar")');
-  await page.getByLabel(labelText('Mover los agotados al final automáticamente en la tienda')).uncheck();
-  await page.getByText('respetan el orden').waitFor();
-  const [setting] = await sql(`select sold_out_last from public.store_settings`);
-  check('ajuste "agotados al final" se guarda', setting.sold_out_last === false);
+  // Los agotados ya no se mueven solos: se quedan donde el admin los deje, en gris.
+  check('el organizador no reacomoda los agotados', (await page.getByText('Mover los agotados al final').count()) === 0);
 
   // Pedidos -----------------------------------------------------------------------------------------
   const customer = { name: 'Cliente E2E Panel', email: 'e2e-panel@example.com', phone: '900003001', address: 'Av. Prueba 123' };
@@ -337,6 +343,15 @@ try {
   await page.getByText('Pedido: cancelado').waitFor();
   const [stockAfter] = await sql(`select stock from public.product_variants where id = '${stockProduct.variant_id}'`);
   check('cancelar devuelve el stock', stockAfter.stock === stockBefore.stock + 1, `${stockBefore.stock} → ${stockAfter.stock}`);
+
+  // Eliminar el pedido ya cancelado: desaparece de la base y el stock no vuelve dos veces.
+  await page.click('button:has-text("Eliminar pedido")');
+  await page.getByRole('dialog').getByRole('button', { name: 'Eliminar definitivamente' }).click();
+  await page.waitForURL(`${base}/admin/pedidos`);
+  const [borrado] = await sql(`select count(*)::int as quedan from public.orders where id = '${order2.o.id}'`);
+  const [stockTrasBorrar] = await sql(`select stock from public.product_variants where id = '${stockProduct.variant_id}'`);
+  check('eliminar pedido: desaparece y el stock no vuelve dos veces', borrado.quedan === 0 && stockTrasBorrar.stock === stockAfter.stock,
+    `quedan=${borrado.quedan}, stock=${stockTrasBorrar.stock}`);
 
   // Estadísticas ---------------------------------------------------------------------------------------
   await page.goto(`${base}/admin/estadisticas`);

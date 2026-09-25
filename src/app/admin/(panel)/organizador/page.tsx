@@ -23,7 +23,7 @@ const toOrganizerProduct = (product: AdminRow) => ({
 
 export default async function OrganizerPage() {
   const { supabase } = await requireAdmin();
-  const [products, { data: settings }] = await Promise.all([getAdminProducts(supabase), supabase.from('store_settings').select('sold_out_last').single()]);
+  const products = await getAdminProducts(supabase);
 
   return (
     <>
@@ -33,7 +33,6 @@ export default async function OrganizerPage() {
       />
       {products.length ? (
         <OrganizerTabs
-          soldOutLast={settings?.sold_out_last ?? true}
           tienda={products.map(toOrganizerProduct)}
           porMayor={[...products].sort((a, b) => a.wholesalePosition - b.wholesalePosition).map(toOrganizerProduct)}
         />

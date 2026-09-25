@@ -7,7 +7,7 @@ import { arrayMove, rectSortingStrategy, SortableContext, useSortable } from '@d
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, ImageOff, Loader2, RotateCcw, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import { saveProductOrder, setSoldOutLast, type OrderScope } from '@/app/admin/(panel)/organizador/actions';
+import { saveProductOrder, type OrderScope } from '@/app/admin/(panel)/organizador/actions';
 import { PRODUCT_STATUS_LABELS, type ProductStatus } from '@/lib/admin/labels';
 import { cloudinaryImageSrc, type ImageCrop } from '@/lib/cloudinary/url';
 import { formatPEN } from '@/lib/store';
@@ -130,22 +130,12 @@ function SortableGrid({ items, onChange, label }: { items: OrganizerProduct[]; o
   );
 }
 
-export function Organizer({
-  products,
-  soldOutLast: initialSoldOutLast,
-  scope = 'tienda',
-}: {
-  products: OrganizerProduct[];
-  soldOutLast: boolean;
-  scope?: OrderScope;
-}) {
+export function Organizer({ products, scope = 'tienda' }: { products: OrganizerProduct[]; scope?: OrderScope }) {
   const porMayor = scope === 'por_mayor';
   const [order, setOrder] = useState(products);
   const [saved, setSaved] = useState(products);
   const [includeHidden, setIncludeHidden] = useState(false);
-  const [soldOutLast, setSoldOutLastState] = useState(initialSoldOutLast);
   const [saving, startSaving] = useTransition();
-  const [togglingSetting, startToggle] = useTransition();
 
   const dirty = useMemo(() => order.some((product, index) => product.id !== saved[index]?.id), [order, saved]);
   useEffect(() => {
@@ -157,9 +147,7 @@ export function Organizer({
 
   // En la tienda no entran los "solo al por mayor"; en por mayor entran todos los publicados.
   const visible = order.filter((product) => (includeHidden || product.status === 'active') && (porMayor || !product.wholesaleOnly));
-  const conAgotadosAlFinal = soldOutLast && !porMayor;
-  const available = conAgotadosAlFinal ? visible.filter((product) => product.stock > 0) : visible;
-  const soldOut = conAgotadosAlFinal ? visible.filter((product) => product.stock <= 0) : [];
+  const agotados = visible.filter((product) => product.stock <= 0).length;
 
   // Reemplaza en el orden completo solo los productos del grupo que cambió, en su nuevo orden.
   const replaceGroup = (group: OrganizerProduct[], next: OrganizerProduct[]) => {
@@ -175,38 +163,16 @@ export function Organizer({
     toast.message(`Vista previa: ${sort.label}`, { description: 'Revisa y pulsa “Guardar orden” para aplicarlo en la tienda.' });
   };
 
-  const soldOutToEnd = () => {
-    const sorted = [...visible].sort((a, b) => Number(a.stock <= 0) - Number(b.stock <= 0));
-    replaceGroup(visible, sorted);
-  };
-
   const save = () =>
     startSaving(async () => {
-      // Con "agotados al final", lo guardado es exactamente lo que se ve: disponibles y luego agotados.
-      const display = conAgotadosAlFinal ? [...order.filter((product) => product.stock > 0), ...order.filter((product) => product.stock <= 0)] : order;
-      const result = await saveProductOrder(display.map((product) => product.id), scope);
+      const result = await saveProductOrder(order.map((product) => product.id), scope);
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
-      setOrder(display);
-      setSaved(display);
+      setSaved(order);
       toast.success(porMayor ? 'Orden guardado: así se verá en “Compras al por mayor”.' : 'Orden guardado: la tienda ya lo muestra así.');
     });
-
-  // Cambio optimista: la casilla responde al instante y vuelve atrás si el servidor falla.
-  const toggleSoldOutLast = (value: boolean) => {
-    setSoldOutLastState(value);
-    startToggle(async () => {
-      const result = await setSoldOutLast(value);
-      if (!result.ok) {
-        setSoldOutLastState(!value);
-        toast.error(result.error);
-        return;
-      }
-      toast.success(value ? 'Los agotados irán al final automáticamente.' : 'Los agotados respetan el orden que definas.');
-    });
-  };
 
   return (
     <div className="space-y-5">
@@ -219,21 +185,8 @@ export function Organizer({
                 {sort.label}
               </button>
             ))}
-            {!soldOutLast && !porMayor ? (
-              <button type="button" className="border border-border px-3 py-1.5 text-sm hover:border-foreground" onClick={soldOutToEnd}>
-                Agotados al final
-              </button>
-            ) : null}
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-            {/* Ajuste de la tienda: no se repite en la pestaña de por mayor, donde no hay stock a la vista. */}
-            {porMayor ? null : (
-              <label className="flex items-center gap-2">
-                <input type="checkbox" checked={soldOutLast} disabled={togglingSetting} onChange={(event) => toggleSoldOutLast(event.target.checked)} className="h-4 w-4 accent-white" />
-                Mover los agotados al final automáticamente en la tienda
-                {togglingSetting ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> : null}
-              </label>
-            )}
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={includeHidden} onChange={(event) => setIncludeHidden(event.target.checked)} className="h-4 w-4 accent-white" />
               Mostrar también borradores y archivados
@@ -253,18 +206,23 @@ export function Organizer({
 
       {dirty ? <Notice tone="warning">Hay cambios sin guardar: la tienda todavía muestra el orden anterior.</Notice> : null}
 
-      {available.length ? (
-        <SortableGrid items={available} onChange={(next) => replaceGroup(available, next)} label="Productos en el orden de la tienda (arrastra para mover)" />
-      ) : (
-        <p className="text-sm text-muted-foreground">No hay productos {includeHidden ? '' : 'publicados '}con stock.</p>
-      )}
-
-      {soldOut.length ? (
-        <section className="space-y-3">
-          <h2 className="font-display text-sm tracking-[0.18em] text-muted-foreground">Agotados · se muestran al final, en gris</h2>
-          <SortableGrid items={soldOut} onChange={(next) => replaceGroup(soldOut, next)} label="Productos agotados (arrastra para mover entre ellos)" />
-        </section>
+      {/* Los agotados se quedan donde los dejes: así el sitio ya está listo para cuando llegue el stock. */}
+      {agotados ? (
+        <p className="text-sm text-muted-foreground">
+          <strong className="text-foreground">{agotados}</strong> {agotados === 1 ? 'reloj agotado' : 'relojes agotados'} se {agotados === 1 ? 've' : 'ven'} en gris y {agotados === 1 ? 'conserva' : 'conservan'} su posición.{' '}
+          {porMayor ? 'En “Compras al por mayor” se siguen mostrando.' : 'En la tienda no aparecen hasta que vuelva el stock.'}
+        </p>
       ) : null}
+
+      {visible.length ? (
+        <SortableGrid
+          items={visible}
+          onChange={(next) => replaceGroup(visible, next)}
+          label={porMayor ? 'Productos en el orden de “Compras al por mayor” (arrastra para mover)' : 'Productos en el orden de la tienda (arrastra para mover)'}
+        />
+      ) : (
+        <p className="text-sm text-muted-foreground">No hay productos {includeHidden ? '' : 'publicados '}para ordenar.</p>
+      )}
     </div>
   );
 }

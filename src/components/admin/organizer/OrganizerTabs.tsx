@@ -6,15 +6,7 @@ import { Organizer, type OrganizerProduct } from './Organizer';
 
 // Dos órdenes en la misma pantalla: el de la tienda y el de "Compras al por mayor". Las dos listas
 // quedan montadas (solo se oculta una) para no perder cambios sin guardar al cambiar de pestaña.
-export function OrganizerTabs({
-  tienda,
-  porMayor,
-  soldOutLast,
-}: {
-  tienda: OrganizerProduct[];
-  porMayor: OrganizerProduct[];
-  soldOutLast: boolean;
-}) {
+export function OrganizerTabs({ tienda, porMayor }: { tienda: OrganizerProduct[]; porMayor: OrganizerProduct[] }) {
   const [tab, setTab] = useState<'tienda' | 'por_mayor'>('tienda');
   const pestañas = [
     { key: 'tienda' as const, label: 'Tienda', count: tienda.filter((product) => product.status === 'active' && !product.wholesaleOnly).length },
@@ -44,14 +36,14 @@ export function OrganizerTabs({
       </div>
 
       <div role="tabpanel" id="panel-tienda" aria-labelledby="tab-tienda" hidden={tab !== 'tienda'}>
-        <Organizer products={tienda} soldOutLast={soldOutLast} />
+        <Organizer products={tienda} />
       </div>
       <div role="tabpanel" id="panel-por_mayor" aria-labelledby="tab-por_mayor" hidden={tab !== 'por_mayor'}>
         <p className="mb-4 text-sm text-muted-foreground">
           Este es el orden de la página “Compras al por mayor”: incluye los relojes de la tienda y los marcados como{' '}
           <strong className="text-foreground">solo al por mayor</strong>. Ahí no se muestran precios ni stock.
         </p>
-        <Organizer products={porMayor} soldOutLast={false} scope="por_mayor" />
+        <Organizer products={porMayor} scope="por_mayor" />
       </div>
     </div>
   );

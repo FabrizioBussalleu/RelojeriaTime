@@ -155,11 +155,13 @@ begin
   -- Expiración de pedidos impagos ---------------------------------------------------------------
   v_expiring := public.create_order(v_customer, jsonb_build_array(jsonb_build_object('variant_id', v_var_a, 'quantity', 1)), 'transfer');
   update public.orders set created_at = now() - interval '49 hours' where id = (v_expiring ->> 'id')::uuid;
+  -- El ensayo corre contra la base real: si hay pedidos impagos vencidos de verdad, también se
+  -- cancelan (y el ROLLBACK los devuelve). Por eso se cuenta "al menos uno", no exactamente uno.
   v_count := public.expire_pending_orders();
   select stock into v_stock_a from public.product_variants where id = v_var_a;
   insert into test_results (name, passed, detail) values (
     'expire_pending_orders cancela impagos vencidos y repone stock',
-    v_count = 1 and v_stock_a = 3 and (select status = 'cancelled' from public.orders where id = (v_expiring ->> 'id')::uuid),
+    v_count >= 1 and v_stock_a = 3 and (select status = 'cancelled' from public.orders where id = (v_expiring ->> 'id')::uuid),
     format('cancelados=%s, stock=%s', v_count, v_stock_a)
   );
 
