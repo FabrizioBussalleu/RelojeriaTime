@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { BUSINESS } from '@/lib/legal';
 import { isTestAddress, renderOrderEmails, type OrderEmailContext, type OrderEmailData } from './order-emails';
 
 const order: OrderEmailData = {
@@ -46,6 +47,13 @@ describe('correos de pedido', () => {
     expect(customer.html).toContain('href="https://time.pe/pedido/TM-001200?t=abc"');
     expect(customer.text).toContain('Ver tu pedido: https://time.pe/pedido/TM-001200?t=abc');
     expect(customer.text).toContain('24 horas');
+  });
+
+  it('identifica al proveedor con su RUC al pie', () => {
+    expect(customer.html).toContain(`RUC ${BUSINESS.ruc}`);
+    expect(customer.html).toContain(BUSINESS.legalName);
+    expect(customer.text).toContain(`RUC ${BUSINESS.ruc}`);
+    expect(BUSINESS.ruc).toMatch(/^\d{11}$/);
   });
 
   it('la tienda recibe los datos del cliente y el enlace al panel', () => {

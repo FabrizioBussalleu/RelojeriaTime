@@ -3,7 +3,6 @@ import LegalPage from '@/components/legal/LegalPage';
 
 export const metadata: Metadata = { title: 'Envíos y cambios' };
 
-// Borrador: las condiciones comerciales (XXXXXXXXXXX) las define la tienda.
 export default function ShippingPage() {
   return (
     <LegalPage
@@ -13,18 +12,27 @@ export default function ShippingPage() {
         {
           title: 'Envíos',
           paragraphs: [
-            'Una vez confirmado tu pago, te escribimos por WhatsApp para coordinar la entrega.',
-            'Cobertura: XXXXXXXXXXX. Costos: XXXXXXXXXXX. Plazos estimados: XXXXXXXXXXX.',
+            'Una vez registrado tu pedido, te escribimos por WhatsApp para coordinar la entrega.',
+            'Ahí confirmamos si llegamos a tu zona, el costo del envío y el plazo estimado según tu dirección, antes de despachar. En Lima también puedes pagar contra entrega.',
           ],
         },
         {
-          title: 'Cambios y devoluciones',
-          paragraphs: ['Plazo y condiciones para solicitar un cambio o una devolución: XXXXXXXXXXX.'],
+          title: 'Si algo llega mal',
+          paragraphs: [
+            'Si el reloj llega dañado, incompleto o no corresponde a lo que pediste, escríbenos por WhatsApp apenas lo recibas con tu código de pedido y fotos: lo cambiamos o te devolvemos el dinero, sin costo para ti.',
+          ],
+        },
+        {
+          title: 'Cambios por otro motivo',
+          paragraphs: [
+            'Para cambiar de modelo o desistir de la compra, consúltanos por WhatsApp antes de usar el reloj. Evaluamos cada caso; el reloj debe estar sin uso y con su empaque y accesorios completos.',
+          ],
         },
         {
           title: 'Garantía',
           paragraphs: [
-            'Todos nuestros productos cuentan con la garantía legal de idoneidad del Código de Protección y Defensa del Consumidor. Garantía comercial adicional: XXXXXXXXXXX.',
+            'Todos nuestros productos cuentan con la garantía legal de idoneidad del Código de Protección y Defensa del Consumidor: deben servir para aquello por lo que normalmente se adquieren y corresponder a lo ofrecido.',
+            'Ante cualquier falla, escríbenos por WhatsApp con tu código de pedido y te indicamos cómo proceder.',
           ],
         },
         {

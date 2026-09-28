@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Mail } from "lucide-react";
 import { BrandIcon } from "@/components/icons/BrandIcon";
 import type { StoreSettings } from "@/lib/catalog";
+import { BUSINESS } from "@/lib/legal";
 import { whatsappLink } from "@/lib/store";
 
 const SHOP_LINKS = [
@@ -16,6 +17,8 @@ const HELP_LINKS = [
   { href: "/envios-y-cambios", label: "Envíos y cambios" },
   { href: "/terminos", label: "Términos y condiciones" },
   { href: "/privacidad", label: "Política de privacidad" },
+  // El Libro de Reclamaciones virtual debe quedar accesible desde la página de inicio.
+  { href: "/libro-de-reclamaciones", label: "Libro de Reclamaciones" },
 ];
 
 const linkClass = "text-sm font-body text-muted-foreground hover:text-foreground transition-colors";
@@ -109,6 +112,9 @@ const Footer = ({
         </div>
 
         <div className="mt-12 pt-8 border-t border-border text-xs font-body text-muted-foreground">
+          <p className="mb-2">
+            {BUSINESS.legalName} · RUC {BUSINESS.ruc} · {BUSINESS.address}
+          </p>
           © {new Date().getFullYear()} Time Relojería. Todos los derechos reservados.{" "}
           <a
             href="https://elarisdigitalsolutions.com"

@@ -1,6 +1,9 @@
 // Correos de un pedido nuevo: aviso a la tienda y confirmación al cliente (HTML simple con estilos en
 // línea, más versión de texto). Todo dato del cliente se escapa: llega desde un formulario público.
 import { formatPEN, formatPhone, PAYMENT_METHOD_LABELS, visibleVariantLabel, whatsappLink, type PaymentMethod } from '@/lib/store';
+import { button, escape, FONT, heading, layout, limaDate, MUTED, sellerLine, subheading, type RenderedEmail } from './pieces';
+
+export type { RenderedEmail };
 
 export type OrderEmailData = {
   code: string;
@@ -25,40 +28,10 @@ export type OrderEmailContext = {
   reserveHours: number;
 };
 
-export type RenderedEmail = { subject: string; html: string; text: string };
-
-const escape = (value: string) =>
-  value.replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!);
-
-const limaDate = new Intl.DateTimeFormat('es-PE', { dateStyle: 'long', timeStyle: 'short', timeZone: 'America/Lima' });
-
 const itemTitle = (item: OrderEmailData['items'][number]) => {
   const variant = visibleVariantLabel(item.variant);
   return `${[item.brand, item.name].filter(Boolean).join(' ')}${variant ? ` (${variant})` : ''}`;
 };
-
-// Piezas HTML ---------------------------------------------------------------------------------------
-const FONT = "font-family:Arial,Helvetica,sans-serif;";
-const MUTED = 'color:#555555;';
-
-function layout(preheader: string, body: string) {
-  return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Time Relojería</title></head>
-<body style="margin:0;padding:0;background:#f4f4f4;">
-<span style="display:none;max-height:0;overflow:hidden;opacity:0;">${escape(preheader)}</span>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;"><tr><td align="center" style="padding:24px 12px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border:1px solid #e5e5e5;">
-<tr><td style="background:#000000;padding:20px 28px;${FONT}color:#ffffff;font-size:20px;letter-spacing:8px;font-weight:bold;">TIME<span style="display:block;font-size:10px;letter-spacing:4px;font-weight:normal;color:#bbbbbb;margin-top:2px;">RELOJERÍA</span></td></tr>
-<tr><td style="padding:28px;${FONT}color:#111111;font-size:15px;line-height:1.5;">${body}</td></tr>
-</table></td></tr></table></body></html>`;
-}
-
-const heading = (text: string) => `<h1 style="margin:0 0 12px;${FONT}font-size:22px;color:#000000;">${text}</h1>`;
-const subheading = (text: string) =>
-  `<h2 style="margin:28px 0 10px;${FONT}font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#000000;">${text}</h2>`;
-const button = (href: string, label: string, primary = true) =>
-  `<a href="${escape(href)}" style="display:inline-block;margin:6px 8px 6px 0;padding:12px 20px;${FONT}font-size:13px;letter-spacing:1px;text-transform:uppercase;text-decoration:none;${
-    primary ? 'background:#000000;color:#ffffff;border:1px solid #000000;' : 'background:#ffffff;color:#000000;border:1px solid #000000;'
-  }">${escape(label)}</a>`;
 
 function itemsTable(order: OrderEmailData) {
   const rows = order.items
@@ -130,6 +103,8 @@ ${subheading('Entrega')}
     `Total: ${total}`,
     '',
     `Entrega: ${addressLine(order)}`,
+    '',
+    sellerLine(),
   ]
     .filter((line) => line !== null)
     .join('\n');

@@ -1,6 +1,8 @@
 'use server';
 
+import { after } from 'next/server';
 import { z } from 'zod';
+import { notifyNewComplaint } from '@/lib/email/notify-complaint';
 import { createServiceClient } from '@/lib/supabase/clients';
 
 const MAX_PER_EMAIL_PER_HOUR = 3;
@@ -85,5 +87,31 @@ export async function submitComplaint(input: ComplaintInput): Promise<ComplaintR
     console.error('No se pudo registrar el reclamo', error);
     return { ok: false, error: 'No pudimos registrar la hoja de reclamación. Inténtalo de nuevo en unos minutos.' };
   }
+
+  // Copia al consumidor y aviso a la tienda, después de responder: quien reclama no espera al correo.
+  after(() =>
+    notifyNewComplaint({
+      code: complaint.code,
+      createdAt: complaint.created_at,
+      kind: data.kind,
+      consumer: {
+        name: data.consumerName,
+        document: data.consumerDocument,
+        email: data.consumerEmail,
+        phone: data.consumerPhone || null,
+        address: data.consumerAddress,
+        isMinor: data.isMinor,
+        guardianName: data.isMinor ? data.guardianName : null,
+      },
+      item: {
+        type: data.itemType,
+        description: data.itemDescription,
+        amount: data.amount ? Number(data.amount) : null,
+        orderCode: data.orderCode.toUpperCase() || null,
+      },
+      detail: data.detail,
+      request: data.consumerRequest,
+    })
+  );
   return { ok: true, code: complaint.code, createdAt: complaint.created_at };
 }

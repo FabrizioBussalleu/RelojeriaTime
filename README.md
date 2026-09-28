@@ -43,6 +43,8 @@ Pruebas de punta a punta: `npm run build && npm start` y, en otra terminal, `npm
 
 ## Reglas de negocio clave
 
+- **Datos del proveedor:** razón social, RUC y domicilio viven en `src/lib/legal.ts` y de ahí salen las páginas legales, el pie de la tienda y el pie de cada correo. Cambiarlos en un solo sitio los actualiza en todas partes.
+- **Libro de Reclamaciones:** el formulario guarda la hoja con su correlativo y, después de responder, envía copia al consumidor (lo exige el reglamento) y aviso a la tienda, que tiene 15 días hábiles para responder. Los datos de pago (Yape, cuentas) se editan en Panel → Ajustes, no en el código.
 - **Imágenes:** todas se entregan desde Cloudinary con `f_auto` y recorte al ancho pedido. Hasta 640 px (grilla de la home, miniaturas) van con `q_auto:eco`; de ahí para arriba, con `q_auto`. La ficha del producto precarga el resto de la galería en cuanto termina la foto principal, para que cambiar de imagen sea instantáneo.
 
 - **Productos:** `save_product` guarda producto, variantes y fotos en una sola transacción. Las fotos se suben firmadas a la carpeta del producto antes de guardar; cancelar el formulario las borra y el cron limpia lo que quede.
