@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Mail } from "lucide-react";
 import { BrandIcon } from "@/components/icons/BrandIcon";
 import type { StoreSettings } from "@/lib/catalog";
-import { BUSINESS } from "@/lib/legal";
 import { whatsappLink } from "@/lib/store";
 
 const SHOP_LINKS = [
@@ -112,9 +111,6 @@ const Footer = ({
         </div>
 
         <div className="mt-12 pt-8 border-t border-border text-xs font-body text-muted-foreground">
-          <p className="mb-2">
-            {BUSINESS.legalName} · RUC {BUSINESS.ruc} · {BUSINESS.address}
-          </p>
           © {new Date().getFullYear()} Time Relojería. Todos los derechos reservados.{" "}
           <a
             href="https://elarisdigitalsolutions.com"

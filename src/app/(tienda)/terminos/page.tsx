@@ -36,12 +36,15 @@ export default function TermsPage() {
         {
           title: 'Entrega',
           paragraphs: [
-            'Coordinamos la entrega contigo por WhatsApp: ahí confirmamos la dirección, el costo del envío si corresponde y el plazo estimado antes de despachar. Las condiciones se detallan en la página de Envíos y cambios.',
+            'Enviamos a todo el Perú por Olva Courier, con el valor total del producto declarado. Despachamos el mismo día en que confirmamos el pago; si el pago entra fuera del horario de despacho o se presenta un imprevisto, el pedido sale al día siguiente. La dirección y la entrega se coordinan contigo por WhatsApp.',
           ],
         },
         {
           title: 'Cambios, devoluciones y garantía',
-          paragraphs: ['Las condiciones de cambios, devoluciones y garantía se detallan en la página de Envíos y cambios.'],
+          paragraphs: [
+            'Aceptamos cambios dentro de los 3 días de recibido el reloj, siempre que esté sin uso y conserve sus plásticos, stickers, etiquetas y elementos de protección originales.',
+            'Todos los relojes tienen un año de garantía contra defectos de fabricación: cambiamos el reloj por uno nuevo sin la falla y, si el modelo no está disponible y no deseas esperar una solución, devolvemos el total del dinero. El detalle está en la página de Envíos y cambios.',
+          ],
         },
         {
           title: 'Reclamos',
