@@ -90,8 +90,8 @@ export default function ComplaintForm() {
           Hoja de reclamación N.° {receipt.code}
         </h2>
         <p className="text-sm text-muted-foreground">
-          Registrada el {dateFormat.format(new Date(receipt.createdAt))}. Te responderemos en un plazo no mayor a {COMPLAINT_RESPONSE_DAYS} días
-          hábiles al correo {receipt.input.consumerEmail}. Guarda o imprime esta constancia.
+          Registrada el {dateFormat.format(new Date(receipt.createdAt))}. Te enviamos una copia a {receipt.input.consumerEmail} y te responderemos a ese
+          mismo correo en un plazo no mayor a {COMPLAINT_RESPONSE_DAYS} días hábiles. También puedes guardar o imprimir esta constancia.
         </p>
         <dl className="grid gap-3 text-sm sm:grid-cols-2">
           <div>

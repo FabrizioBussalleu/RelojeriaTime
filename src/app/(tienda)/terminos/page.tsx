@@ -4,7 +4,6 @@ import { BUSINESS, COMPLAINT_RESPONSE_DAYS } from '@/lib/legal';
 
 export const metadata: Metadata = { title: 'Términos y condiciones' };
 
-// Borrador: revisar con asesoría legal y completar los datos XXXXXXXXXXX antes de publicar.
 export default function TermsPage() {
   return (
     <LegalPage
@@ -26,13 +25,19 @@ export default function TermsPage() {
         {
           title: 'Proceso de compra y pago',
           paragraphs: [
-            'Al confirmar tu pedido recibirás un código y los datos para pagar por Yape o transferencia bancaria. El pedido se considera confirmado cuando verificamos el pago.',
-            'Reservamos el stock de tu pedido por 48 horas. Si en ese plazo no recibimos el pago, el pedido se cancela automáticamente.',
+            'Al confirmar tu pedido recibirás un código y los datos para pagar por Yape, Plin o transferencia bancaria. También puedes coordinar el pago contra entrega por WhatsApp. El pedido se considera confirmado cuando verificamos el pago o acordamos la entrega.',
+            'Reservamos el stock de tu pedido por 48 horas. Si en ese plazo no recibimos el pago ni tenemos noticias tuyas, el pedido se cancela automáticamente y las unidades vuelven a la tienda.',
           ],
         },
         {
+          title: 'Comprobante de pago',
+          paragraphs: ['Por cada compra emitimos boleta de venta electrónica a nombre del comprador.'],
+        },
+        {
           title: 'Entrega',
-          paragraphs: ['Coordinamos la entrega por WhatsApp una vez confirmado el pago. Plazos y costos de envío: XXXXXXXXXXX.'],
+          paragraphs: [
+            'Coordinamos la entrega contigo por WhatsApp: ahí confirmamos la dirección, el costo del envío si corresponde y el plazo estimado antes de despachar. Las condiciones se detallan en la página de Envíos y cambios.',
+          ],
         },
         {
           title: 'Cambios, devoluciones y garantía',

@@ -17,6 +17,7 @@ const AYUDA = [
   { href: "/envios-y-cambios", label: "Envíos y cambios" },
   { href: "/terminos", label: "Términos y condiciones" },
   { href: "/privacidad", label: "Política de privacidad" },
+  { href: "/libro-de-reclamaciones", label: "Libro de Reclamaciones" },
 ];
 
 // Las tres barras se convierten en X: la de arriba y la de abajo giran hasta cruzarse y la del medio

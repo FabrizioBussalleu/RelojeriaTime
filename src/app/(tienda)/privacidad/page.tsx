@@ -4,7 +4,6 @@ import { BUSINESS } from '@/lib/legal';
 
 export const metadata: Metadata = { title: 'Política de privacidad' };
 
-// Borrador: revisar con asesoría legal y completar los datos XXXXXXXXXXX antes de publicar.
 export default function PrivacyPage() {
   return (
     <LegalPage
@@ -51,12 +50,14 @@ export default function PrivacyPage() {
         },
         {
           title: 'Conservación',
-          paragraphs: ['Conservamos los datos de pedidos y reclamos durante el tiempo necesario para cumplir con obligaciones legales y tributarias: XXXXXXXXXXX.'],
+          paragraphs: [
+            'Conservamos tus datos mientras dure la relación comercial y, después, durante los plazos que exige la ley: cinco años los comprobantes y registros con efecto tributario, y dos años los reclamos del Libro de Reclamaciones. Los datos que solo usamos para enviarte novedades se eliminan cuando te das de baja.',
+          ],
         },
         {
           title: 'Tus derechos',
           paragraphs: [
-            'Puedes ejercer tus derechos de acceso, rectificación, cancelación y oposición escribiéndonos por WhatsApp o a XXXXXXXXXXX.',
+            `Puedes ejercer tus derechos de acceso, rectificación, cancelación y oposición escribiéndonos por WhatsApp, a ${BUSINESS.email} o a nuestro domicilio en ${BUSINESS.address}. Responderemos en los plazos de la Ley 29733. Si consideras que no atendimos tu solicitud, puedes acudir a la Autoridad Nacional de Protección de Datos Personales.`,
           ],
         },
         {
